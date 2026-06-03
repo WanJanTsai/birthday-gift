@@ -97,6 +97,18 @@
         .wave-effect {
             animation: wave 4s infinite linear;
         }
+
+        /* 可愛手寫：珍奶杯扣款成功時的開心搖擺特效 */
+        @keyframes cupShaking {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            20% { transform: rotate(-8deg) scale(1.05); }
+            40% { transform: rotate(6deg) scale(1.05); }
+            60% { transform: rotate(-4deg) scale(1.03); }
+            80% { transform: rotate(2deg) scale(1.01); }
+        }
+        .happy-shake-active {
+            animation: cupShaking 0.6s ease-in-out !important;
+        }
     </style>
 </head>
 <body class="py-6 px-4 flex flex-col items-center justify-center">
@@ -126,11 +138,11 @@
         <div class="bg-[#F0F5F1] border-3 border-[#6D4C41] rounded-2xl p-3 flex items-center justify-between text-xs shadow-sm">
             <div class="flex items-center gap-2">
                 <span class="relative flex h-2.5 w-2.5">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                    <span id="syncIndicatorPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span id="syncIndicatorDot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
                 </span>
                 <div>
-                    <div class="font-bold text-matcha-700">雙機即時對齊中 🟢</div>
+                    <div id="syncStatusText" class="font-bold text-matcha-700">雙機即時對齊中 🟢</div>
                     <div class="text-[10px] text-[#8D6E63] mt-0.5 font-bold flex items-center gap-1.5">
                         代碼：
                         <span onclick="copyShareLink()" class="font-mono bg-[#EADBC8] px-1.5 py-0.5 rounded font-black text-[#5C3D2E] cursor-pointer hover:bg-[#dfd0bd] active:scale-95 transition-all" id="syncKeyDisplay" title="點擊複製一鍵配對連結">載入中...</span>
@@ -148,13 +160,14 @@
             </div>
         </div>
 
+        <!-- 珍奶杯水高度展示卡片 -->
         <div class="cute-card bg-white rounded-3xl p-6 text-center relative overflow-hidden">
             <div class="absolute -top-10 -right-10 w-24 h-24 bg-peach-100 rounded-full opacity-50"></div>
             
             <p class="text-[#8D6E63] font-bold text-lg mb-2">🥤 剩餘扣打進度條</p>
 
-            <!-- 珍奶杯主體 -->
-            <div class="relative w-36 h-48 mx-auto my-6 bg-amber-50 rounded-b-[40px] rounded-t-lg border-4 border-[#6D4C41] flex items-end overflow-hidden shadow-inner z-10">
+            <!-- 珍奶杯主體 (加上晃動動畫容器 id) -->
+            <div id="entireCupGroup" class="relative w-36 h-48 mx-auto my-6 bg-amber-50 rounded-b-[40px] rounded-t-lg border-4 border-[#6D4C41] flex items-end overflow-hidden shadow-inner z-10">
                 <!-- 粗吸管 -->
                 <div class="absolute -top-12 right-10 w-6 h-36 bg-pink-300 rounded-full transform rotate-12 -z-10 border-r-4 border-l-4 border-pink-400"></div>
                 
@@ -196,6 +209,7 @@
             </div>
         </div>
 
+        <!-- 飲料扣款填寫表單 -->
         <div class="cute-card bg-white rounded-3xl p-6 space-y-4">
             <h3 class="text-lg font-bold text-[#6D4C41] flex items-center gap-2">
                 <i class="fa-solid fa-cart-shopping text-matcha-500"></i>
@@ -220,6 +234,7 @@
             </div>
         </div>
 
+        <!-- 歷史消費日誌 -->
         <div class="cute-card bg-white rounded-3xl p-6">
             <h3 class="text-lg font-bold text-[#6D4C41] flex items-center justify-between mb-4">
                 <span class="flex items-center gap-2">
@@ -236,6 +251,7 @@
             </div>
         </div>
 
+        <!-- 使用規則與條款 -->
         <div class="cute-card bg-white rounded-3xl p-6 space-y-3">
             <h3 class="text-md font-bold text-[#6D4C41] flex items-center gap-2">
                 <i class="fa-solid fa-circle-info text-amber-500"></i>
@@ -310,7 +326,7 @@
         <div class="bg-white max-w-sm w-full rounded-3xl border-4 border-[#6D4C41] p-6 shadow-xl">
             <h3 class="text-xl font-extrabold text-[#6D4C41] text-center mb-2">🔗 雙機配對同步</h3>
             <p class="text-xs text-[#8D6E63] font-semibold text-center mb-4">
-                請輸入或貼上對方的「6位同步代碼」或「同步網址」：
+                請輸入或貼上對方的「6位同步代碼」或「一鍵同步網址」：
             </p>
             <input type="text" id="syncInput" placeholder="例如：B3F97A" maxlength="150"
                    class="w-full px-4 py-3 rounded-xl border-2 border-matcha-200 focus:border-[#6D4C41] focus:outline-none text-[#6D4C41] font-extrabold font-mono text-center text-lg uppercase bg-[#FBFBF2] mb-4">
@@ -344,9 +360,9 @@
             }
         };
 
-        // ⏱️ 網路超時請求
+        // ⏱️ 網絡超時請求（安全放寬閾值，防止高頻率 Abort 崩潰）
         async function fetchWithTimeout(resource, options = {}) {
-            const { timeout = 3000 } = options;
+            const { timeout = 10000 } = options; // 放寬至 10 秒
             const controller = new AbortController();
             const id = setTimeout(() => controller.abort(), timeout);
             try {
@@ -356,6 +372,32 @@
             } catch (error) {
                 clearTimeout(id);
                 throw error;
+            }
+        }
+
+        // 🎛️ 雲端同步狀態指示器更換
+        function updateSyncStatus(status) {
+            const statusText = document.getElementById("syncStatusText");
+            const pingDot = document.getElementById("syncIndicatorPing");
+            const statusDot = document.getElementById("syncIndicatorDot");
+            
+            if (!statusText || !pingDot || !statusDot) return;
+
+            if (status === "connected") {
+                statusText.innerText = "雙機即時對齊中 🟢";
+                statusText.className = "font-bold text-matcha-700";
+                pingDot.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75";
+                statusDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500";
+            } else if (status === "slow" || status === "timeout") {
+                statusText.innerText = "連線稍慢，本機對齊中 🟡";
+                statusText.className = "font-bold text-amber-600";
+                pingDot.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75";
+                statusDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500";
+            } else if (status === "offline") {
+                statusText.innerText = "離線模式，本機安全儲存 🔴";
+                statusText.className = "font-bold text-rose-500";
+                pingDot.className = "absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-0";
+                statusDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500";
             }
         }
 
@@ -474,7 +516,7 @@
             return bucket.substring(0, 16);
         }
 
-        // 🛠️ 產生 6 碼隨機純 Hex（0-9 與 A-F）代碼，輕巧好讀好打
+        // 🛠️ 產生 6 碼隨機純 Hex（0-9 與 A-F）代碼
         function generateSyncCode() {
             const chars = '0123456789ABCDEF';
             let result = '';
@@ -484,14 +526,13 @@
             return result;
         }
 
-        // ☁️ 從雲端拉取資料 (100% 解決 CORS 跨網域阻擋 OPTIONS 預檢問題)
+        // ☁️ 從雲端拉取資料 (優雅捕獲 Abort 中斷，安全離線切換)
         async function pullFromCloud() {
             if (!syncKey) return;
             const bucketId = getCleanBucketId(syncKey);
             if (!bucketId) return;
 
             try {
-                // 發起 GET 簡單請求，避開預檢
                 const response = await fetchWithTimeout(`https://kvdb.io/${bucketId}/drink_data`, {
                     method: 'GET'
                 });
@@ -502,16 +543,25 @@
                         remaining = data.remainingBudget;
                         historyList = data.logs || [];
                         updateUI(false); 
+                        updateSyncStatus("connected");
                     }
                 } else if (response.status === 404) {
                     await pushToCloud();
+                } else {
+                    updateSyncStatus("offline");
                 }
             } catch (err) {
-                console.warn("雲端同步異常，載入本機快取:", err);
+                if (err.name === 'AbortError') {
+                    console.warn("雲端拉取超時，自動切換至本機對齊。");
+                    updateSyncStatus("timeout");
+                } else {
+                    console.warn("雲端同步異常，載入本機快取:", err);
+                    updateSyncStatus("offline");
+                }
             }
         }
 
-        // ☁️ 推送資料至雲端 (使用 PUT 法，避開 preflight 攔截)
+        // ☁️ 推送資料至雲端
         async function pushToCloud() {
             if (!syncKey) return;
             const bucketId = getCleanBucketId(syncKey);
@@ -523,8 +573,15 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ remainingBudget: remaining, logs: historyList })
                 });
+                updateSyncStatus("connected");
             } catch (err) {
-                console.error("雲端推送失敗:", err);
+                if (err.name === 'AbortError') {
+                    console.warn("雲端推送超時，本機快取將於下次同步時對齊。");
+                    updateSyncStatus("timeout");
+                } else {
+                    console.warn("雲端推送失敗:", err);
+                    updateSyncStatus("offline");
+                }
             }
         }
 
@@ -710,7 +767,7 @@
                 remaining = TOTAL_BUDGET;
                 historyList = [];
                 updateUI();
-                showAlert("✨ 系統已重置", "系統已成功重置！又是滿滿的 6000 元扣打囉！");
+                showAlert("✨ 系統已重置", "系統已成功重置！又是滿滿 of 6000 元扣打囉！");
             } else if (password !== null) {
                 showAlert("❌ 重置失敗", "密碼輸入錯誤，重置失敗！女友生氣囉 (・ε・)");
             }
