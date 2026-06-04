@@ -145,7 +145,7 @@
                     <div id="syncStatusText" class="font-bold text-matcha-700">雲端對齊中... 🟢</div>
                     <div class="text-[10px] text-[#8D6E63] mt-0.5 font-bold flex items-center gap-1.5">
                         代碼：
-                        <span onclick="copyShareLink()" class="font-mono bg-[#EADBC8] px-1.5 py-0.5 rounded font-black text-[#5C3D2E] cursor-pointer hover:bg-[#dfd0bd] active:scale-95 transition-all text-[9px] break-all max-w-[130px] inline-block truncate" id="syncKeyDisplay" title="點擊複製一鍵配對連結">載入中...</span>
+                        <span onclick="copyShareLink()" class="font-mono bg-[#EADBC8] px-1.5 py-0.5 rounded font-black text-[#5C3D2E] cursor-pointer hover:bg-[#dfd0bd] active:scale-95 transition-all text-[9px] break-all max-w-[130px] inline-block truncate" id="syncKeyDisplay" title="點擊複製一鍵配對連結">建立中...</span>
                         <button onclick="copyShareLink()" class="text-[#5C3D2E] hover:text-[#8D6E63] transition-colors" title="複製同步網址">📋</button>
                     </div>
                 </div>
@@ -168,12 +168,9 @@
 
             <!-- 珍奶杯主體 -->
             <div id="entireCupGroup" class="relative w-36 h-48 mx-auto my-6 bg-amber-50 rounded-b-[40px] rounded-t-lg border-4 border-[#6D4C41] flex items-end overflow-hidden shadow-inner z-10">
-                <!-- 粗吸管 -->
                 <div class="absolute -top-12 right-10 w-6 h-36 bg-pink-300 rounded-full transform rotate-12 -z-10 border-r-4 border-l-4 border-pink-400"></div>
                 
-                <!-- 茶液體 -->
                 <div id="liquid" class="w-[200%] h-3/4 bg-[#e9c46a] absolute bottom-0 left-0 wave-effect origin-bottom transition-all duration-1000 ease-out" style="border-top: 4px solid #d4a327;">
-                    <!-- 液體裡面的珍珠 -->
                     <div class="absolute bottom-3 left-4 w-5 h-5 bg-[#2b1e16] rounded-full shadow-sm"></div>
                     <div class="absolute bottom-5 left-12 w-5 h-5 bg-[#2b1e16] rounded-full shadow-sm"></div>
                     <div class="absolute bottom-2 left-20 w-5 h-5 bg-[#2b1e16] rounded-full shadow-sm"></div>
@@ -182,7 +179,6 @@
                     <div class="absolute bottom-6 left-16 w-5 h-5 bg-[#2b1e16] rounded-full shadow-sm"></div>
                 </div>
 
-                <!-- 杯身上的可愛表情 -->
                 <div class="absolute top-12 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none">
                     <div class="flex gap-6">
                         <div class="w-2.5 h-2.5 bg-[#2b1e16] rounded-full"></div>
@@ -290,7 +286,7 @@
             </div>
         </div>
 
-        <!-- 隱藏的系統重置按鈕 -->
+        <!-- 系統重置按鈕 -->
         <div class="text-center mt-4">
             <button onclick="confirmReset()" class="text-[10px] text-gray-400 hover:text-red-400 transition-colors">
                 ⚠️ 重置系統數據 (請勿隨意點擊)
@@ -326,47 +322,20 @@
         </div>
     </div>
 
-    <!-- 🔗 雙機同步配對彈窗 (Hex 鍵盤) -->
+    <!-- 🔗 雙機同步配對彈窗 (直接貼上版) -->
     <div id="syncModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
         <div class="bg-white max-w-sm w-full rounded-3xl border-4 border-[#6D4C41] p-5 shadow-xl">
             <h3 class="text-xl font-extrabold text-[#6D4C41] text-center mb-2">🔗 多人連線配對</h3>
             <p class="text-[11px] text-[#8D6E63] font-semibold text-center mb-4">
-                請輸入或貼上對方的「6碼同步代碼」或「同步網址」：
+                為保證連線不中斷，我們捨棄了手動輸入。<br>請直接 <strong>貼上對方傳給您的專屬網址</strong>：
             </p>
             
-            <div class="w-full bg-[#FBFBF2] border-2 border-matcha-200 rounded-xl py-3 px-3 text-center text-xs font-mono font-black text-[#6D4C41] tracking-wider mb-4 break-all min-h-[44px] flex items-center justify-center shadow-inner" id="syncCodeDisplay">
-                請輸入或貼上...
-            </div>
-
-            <!-- Hex 可愛配對小鍵盤 -->
-            <div class="space-y-1 mb-5">
-                <div class="flex justify-center gap-1">
-                    <button onclick="pressSyncKey('1')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">1</button>
-                    <button onclick="pressSyncKey('2')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">2</button>
-                    <button onclick="pressSyncKey('3')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">3</button>
-                    <button onclick="pressSyncKey('4')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">4</button>
-                    <button onclick="pressSyncKey('5')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">5</button>
-                </div>
-                <div class="flex justify-center gap-1">
-                    <button onclick="pressSyncKey('6')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">6</button>
-                    <button onclick="pressSyncKey('7')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">7</button>
-                    <button onclick="pressSyncKey('8')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">8</button>
-                    <button onclick="pressSyncKey('9')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">9</button>
-                    <button onclick="pressSyncKey('0')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">0</button>
-                </div>
-                <div class="flex justify-center gap-1">
-                    <button onclick="pressSyncKey('A')" class="cute-btn flex-1 py-2.5 bg-matcha-100 rounded-xl font-mono font-black text-sm">A</button>
-                    <button onclick="pressSyncKey('B')" class="cute-btn flex-1 py-2.5 bg-matcha-100 rounded-xl font-mono font-black text-sm">B</button>
-                    <button onclick="pressSyncKey('C')" class="cute-btn flex-1 py-2.5 bg-matcha-100 rounded-xl font-mono font-black text-sm">C</button>
-                    <button onclick="pressSyncKey('D')" class="cute-btn flex-1 py-2.5 bg-matcha-100 rounded-xl font-mono font-black text-sm">D</button>
-                    <button onclick="pressSyncKey('E')" class="cute-btn flex-1 py-2.5 bg-matcha-100 rounded-xl font-mono font-black text-sm">E</button>
-                    <button onclick="pressSyncKey('F')" class="cute-btn flex-1 py-2.5 bg-matcha-100 rounded-xl font-mono font-black text-sm">F</button>
-                </div>
-                <div class="flex justify-center gap-1 mt-2 pt-2 border-t-2 border-dashed border-gray-200">
-                    <button onclick="pasteSyncKey()" class="cute-btn flex-1 py-2.5 rounded-xl text-xs bg-blue-100 hover:bg-blue-200 font-bold"><i class="fa-solid fa-paste mr-1"></i> 貼上</button>
-                    <button onclick="clearSyncKey()" class="cute-btn flex-1 py-2.5 rounded-xl text-xs bg-peach-100 hover:bg-peach-200 font-bold">清除</button>
-                    <button onclick="backspaceSyncKey()" class="cute-btn flex-1 py-2.5 rounded-xl text-xs bg-gray-100 hover:bg-gray-200 font-bold"><i class="fa-solid fa-delete-left"></i></button>
-                </div>
+            <div class="flex gap-2 mb-6">
+                <input type="text" id="syncInput" placeholder="在此處長按貼上網址..."
+                       class="w-full px-4 py-3 rounded-xl border-2 border-matcha-200 focus:border-[#6D4C41] focus:outline-none text-[#6D4C41] font-bold text-sm bg-[#FBFBF2]">
+                <button onclick="pasteToInput()" class="px-4 py-3 bg-peach-100 hover:bg-peach-200 text-[#6D4C41] font-bold rounded-xl border-2 border-[#6D4C41] shrink-0 transition-colors" title="讀取剪貼簿">
+                    <i class="fa-solid fa-paste"></i>
+                </button>
             </div>
 
             <div class="flex gap-3">
@@ -383,7 +352,7 @@
         </div>
     </div>
 
-    <!-- 零相依性核心邏輯 (使用 kvdb 進行完全通暢的雙機同步) -->
+    <!-- 真實零相依性核心邏輯 (使用 kvdb 進行完全通暢的雙機同步) -->
     <script>
         const TOTAL_BUDGET = 6000;
         let remaining = TOTAL_BUDGET;
@@ -391,8 +360,8 @@
         let confirmCallback = null;
         let selectedDrinkName = ""; 
         
-        let syncKey = "";
-        let tempSyncCode = "";
+        let syncKey = ""; // 這將存放真實的雲端房間 ID
+        let isSyncing = false; // 防止重複拉取
 
         // 🛡️ 本地安全儲存
         const safeStorage = {
@@ -464,12 +433,12 @@
                 pingDot.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75";
                 statusDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500";
             } else if (status === "timeout") {
-                statusText.innerText = "連線稍慢，本機對齊中 🟡";
+                statusText.innerText = "連線稍慢，請稍候 🟡";
                 statusText.className = "font-bold text-amber-600";
                 pingDot.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75";
                 statusDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500";
             } else if (status === "offline") {
-                statusText.innerText = "離線模式，本機安全儲存 🔴";
+                statusText.innerText = "連線異常，單機儲存中 🔴";
                 statusText.className = "font-bold text-rose-500";
                 pingDot.className = "absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-0";
                 statusDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500";
@@ -478,11 +447,14 @@
 
         // 📋 智慧複製一鍵同步網址
         function copyShareLink() {
-            if (!syncKey) return;
-            const shareUrl = window.location.origin + window.location.pathname + "?sync=" + syncKey.toUpperCase();
+            if (!syncKey) {
+                showAlert("⚠️ 房間建立中", "正在為您申請雲端房間，請稍候再複製喔！");
+                return;
+            }
+            const shareUrl = window.location.origin + window.location.pathname + "?sync=" + syncKey;
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(shareUrl)
-                .then(() => showAlert("📋 複製同步連結成功！", "已複製「多人連線專屬連結」至剪貼簿！\n\n傳給任何人，點開就會自動綁定同一個茶杯頻道囉！💖"))
+                .then(() => showAlert("📋 複製同步連結成功！", "已複製「多人連線專屬連結」至剪貼簿！\n\n用 LINE 傳給男友點開，他的手機就會瞬間連上這個房間！💖"))
                 .catch(() => fallbackCopyText(shareUrl));
             } else {
                 fallbackCopyText(shareUrl);
@@ -511,7 +483,7 @@
 
             try {
                 if (document.execCommand("copy")) {
-                    showAlert("📋 複製同步連結成功！", "已複製「多人連線專屬連結」至剪貼簿！");
+                    showAlert("📋 複製同步連結成功！", "已複製「多人連線專屬連結」至剪貼簿！\n\n用 LINE 傳給男友點開，他的手機就會瞬間連上這個房間！💖");
                 } else {
                     throw new Error("fail");
                 }
@@ -529,44 +501,37 @@
                 try {
                     const urlParams = new URLSearchParams(input.substring(input.indexOf('?')));
                     const key = urlParams.get('sync');
-                    if (key) return key.trim().toUpperCase();
+                    if (key) return key.trim();
                 } catch(e) {}
             }
-            const cleaned = input.replace(/[^0-9a-fA-F]/g, '').toUpperCase();
-            if (cleaned.length === 6) return cleaned;
+            // 過濾出真實的英數字 ID
+            const cleaned = input.replace(/[^a-zA-Z0-9]/g, '');
+            if (cleaned.length > 5) return cleaned;
             return null;
         }
 
-        // 🛠️ 16字元 Bucket ID 轉換（將 6 碼重疊補齊為 16 碼，符合資料庫標準）
-        function getCleanBucketId(rawCode) {
-            if (!rawCode) return null;
-            let hex = rawCode.trim().toLowerCase().replace(/[^0-9a-f]/g, '');
-            if (hex.length === 0) return null;
-            let bucket = hex;
-            while (bucket.length < 16) {
-                bucket += hex;
+        // ☁️ 核心通訊 1：真實建立雲端房間！(絕不憑空捏造)
+        async function createNewCloudRoom() {
+            try {
+                // 正式向 kvdb 申請一個合法 bucket
+                const response = await fetchWithTimeout('https://kvdb.io/', { method: 'POST' });
+                if (response.ok) {
+                    const bucketId = await response.text();
+                    return bucketId.trim();
+                }
+            } catch (e) {
+                console.error("雲端房間建立失敗", e);
             }
-            return bucket.substring(0, 16);
+            return null;
         }
 
-        // 🛠️ 產生 6 碼隨機純 Hex（0-9 與 A-F）代碼
-        function generateSyncCode() {
-            const chars = '0123456789ABCDEF';
-            let result = '';
-            for (let i = 0; i < 6; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
-
-        // ☁️ 核心通訊：從雲端拉取資料 (GET 簡單請求，100% 避開 CORS 錯誤)
+        // ☁️ 核心通訊 2：從雲端房間拉取資料
         async function pullFromCloud() {
             if (!syncKey) return;
-            const bucketId = getCleanBucketId(syncKey);
-            if (!bucketId) return;
 
             try {
-                const response = await fetchWithTimeout(`https://kvdb.io/${bucketId}/data`, {
+                // GET 拉取狀態
+                const response = await fetchWithTimeout(`https://kvdb.io/${syncKey}/state`, {
                     method: 'GET'
                 });
                 
@@ -576,20 +541,20 @@
                         const data = JSON.parse(text);
                         if (data && typeof data.remainingBudget === 'number') {
                             let needUpdate = false;
-                            // 只有在雲端資料有變動時，才刷新畫面，防止畫面閃爍
+                            // 只有雲端資料有異動時才更新畫面，防止閃爍
                             if (remaining !== data.remainingBudget || JSON.stringify(historyList) !== JSON.stringify(data.logs)) {
                                 remaining = data.remainingBudget;
                                 historyList = data.logs || [];
                                 needUpdate = true;
                             }
                             if (needUpdate) {
-                                updateUI(false); // 更新本地畫面，不再觸發上傳
+                                updateUI(false); 
                             }
                         }
                     }
                     updateSyncStatus("connected");
                 } else if (response.status === 404) {
-                    // 如果雲端尚無此頻道資料，將本機資料推上去建立
+                    // 若房間裡還沒有紀錄，就把目前的 6000 元寫入
                     await pushToCloud();
                 } else {
                     updateSyncStatus("offline");
@@ -599,18 +564,20 @@
             }
         }
 
-        // ☁️ 核心通訊：推送資料至雲端 (POST 簡單請求，絕對不卡 OPTIONS 預檢！)
+        // ☁️ 核心通訊 3：推送資料至雲端房間
         async function pushToCloud() {
             if (!syncKey) return;
-            const bucketId = getCleanBucketId(syncKey);
-            if (!bucketId) return;
 
             try {
-                await fetchWithTimeout(`https://kvdb.io/${bucketId}/data`, {
+                // POST 覆寫狀態
+                const response = await fetchWithTimeout(`https://kvdb.io/${syncKey}/state`, {
                     method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ remainingBudget: remaining, logs: historyList })
                 });
-                updateSyncStatus("connected");
+                if (response.ok) {
+                    updateSyncStatus("connected");
+                }
             } catch (err) {
                 updateSyncStatus("timeout");
             }
@@ -623,38 +590,54 @@
 
         // 🚀 初始化全系統
         async function initApp() {
-            // 一鍵配對檢查
+            // 一鍵配對檢查：如果網址帶有 ?sync=，強制覆蓋為該雲端房間
             let urlSyncKey = getQueryParam('sync');
             if (urlSyncKey) {
                 urlSyncKey = extractSyncKey(urlSyncKey);
                 if(urlSyncKey) {
                     safeStorage.setItem('drinkSyncKey', urlSyncKey);
                     try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
-                    showAlert("💚 頻道連接成功！", "已成功加入朋友的專屬飲料頻道！多人即時連線已啟動！🎉");
+                    showAlert("💚 房間連接成功！", "已成功進入專屬飲料雲端頻道！雙機即時連線已啟動！🎉");
                 }
             }
 
             syncKey = safeStorage.getItem('drinkSyncKey');
-            if (!syncKey) {
-                syncKey = generateSyncCode();
-                safeStorage.setItem('drinkSyncKey', syncKey);
-            }
-            document.getElementById('syncKeyDisplay').innerText = "TEA-" + syncKey;
 
-            // 先載入本地紀錄防空白
+            // 載入本地快取墊檔
             const savedRemaining = safeStorage.getItem('drink_remaining');
             remaining = parseInt(savedRemaining);
             if (isNaN(remaining)) remaining = TOTAL_BUDGET;
             try { historyList = JSON.parse(safeStorage.getItem('drink_history')) || []; } catch(e) { historyList = []; }
             updateUI(false);
 
-            // 啟動首次雲端對齊
-            await pullFromCloud();
+            // 【最關鍵修復】：如果本地沒有房間 ID，我們「真實去申請一個」，絕對不捏造！
+            if (!syncKey) {
+                updateSyncStatus("timeout");
+                document.getElementById('syncKeyDisplay').innerText = "建立中...";
+                
+                syncKey = await createNewCloudRoom();
+                if (syncKey) {
+                    safeStorage.setItem('drinkSyncKey', syncKey);
+                    await pushToCloud(); // 申請成功後，立刻上傳初始資料
+                } else {
+                    showAlert("⚠️ 雲端申請失敗", "無法向伺服器申請房間，系統暫時切換為單機儲存模式。請確認網路狀態後重整網頁。");
+                }
+            }
 
-            // ⏱️ 啟動 3 秒智慧背景自動即時同步拉取 (免重整神器！)
-            setInterval(async () => {
+            if (syncKey) {
+                document.getElementById('syncKeyDisplay').innerText = syncKey;
+                
+                // 啟動首次雲端對齊
                 await pullFromCloud();
-            }, 3000);
+
+                // ⏱️ 啟動 3 秒真實背景拉取
+                setInterval(async () => {
+                    if (isSyncing) return;
+                    isSyncing = true;
+                    await pullFromCloud();
+                    isSyncing = false;
+                }, 3000);
+            }
         }
 
         function updateUI(writeToCloud = true) {
@@ -668,14 +651,16 @@
 
             safeStorage.setItem('drink_remaining', remaining);
             safeStorage.setItem('drink_history', JSON.stringify(historyList));
-            safeStorage.setItem('drinkSyncKey', syncKey);
-            document.getElementById('syncKeyDisplay').innerText = "TEA-" + syncKey;
+            if (syncKey) {
+                safeStorage.setItem('drinkSyncKey', syncKey);
+                document.getElementById('syncKeyDisplay').innerText = syncKey;
+            }
 
             const cupMouth = document.getElementById('cupMouth');
             if (remaining <= 0) cupMouth.className = "w-4 h-2 border-t-4 border-[#2b1e16] rounded-full mt-1"; 
             else cupMouth.className = "w-4 h-2 border-b-4 border-[#2b1e16] rounded-full";
 
-            if (writeToCloud) {
+            if (writeToCloud && syncKey) {
                 pushToCloud();
             }
             renderHistory();
@@ -733,7 +718,7 @@
             
             triggerConfetti();
             resetDrinkSelection();
-            updateUI(true); // 這裡傳 true，扣款後會立刻 pushToCloud() 推送上雲端！
+            updateUI(true); // 這裡傳 true，扣款後會立刻推上雲端！
 
             setTimeout(() => {
                 entireCupGroup.classList.remove('happy-shake-active');
@@ -791,55 +776,35 @@
             }
         }
 
-        // 🔗 虛擬鍵盤與配對
-        function pressSyncKey(char) {
-            if (tempSyncCode.length < 6) tempSyncCode += char;
-            updateVirtualSyncDisplay();
-        }
-        function clearSyncKey() { tempSyncCode = ""; updateVirtualSyncDisplay(); }
-        function backspaceSyncKey() {
-            if (tempSyncCode.length > 0) tempSyncCode = tempSyncCode.slice(0, -1);
-            updateVirtualSyncDisplay();
-        }
-        function updateVirtualSyncDisplay() {
-            document.getElementById('syncCodeDisplay').innerText = tempSyncCode ? "TEA-" + tempSyncCode : "請輸入或貼上...";
-        }
-
-        async function pasteSyncKey() {
-            try {
-                if (navigator.clipboard) {
-                    const text = await navigator.clipboard.readText();
-                    const key = extractSyncKey(text);
-                    if (key) {
-                        tempSyncCode = key;
-                        updateVirtualSyncDisplay();
-                        showAlert("📋 貼上成功", "已成功識別金鑰！");
-                    } else {
-                        showAlert("⚠️ 無法識別", "剪貼簿內沒有正確的 6 碼代碼或網址唷！");
-                    }
-                } else { throw new Error("unsupported"); }
-            } catch (e) {
-                const input = prompt("請貼上「專屬同步網址」或代碼：");
-                const key = extractSyncKey(input);
-                if (key) { tempSyncCode = key; updateVirtualSyncDisplay(); }
-            }
-        }
-
+        // 🔗 貼上網址與配對
         function openSyncModal() {
-            tempSyncCode = "";
-            updateVirtualSyncDisplay();
+            document.getElementById('syncInput').value = "";
             openModal('syncModal');
         }
         function closeSyncModal() { closeModal('syncModal'); }
 
+        async function pasteToInput() {
+            try {
+                if (navigator.clipboard) {
+                    const text = await navigator.clipboard.readText();
+                    document.getElementById('syncInput').value = text;
+                    showAlert("📋 讀取成功", "已將剪貼簿內容貼上，請點擊「確認連線」！");
+                } else { throw new Error("unsupported"); }
+            } catch (e) {
+                const input = prompt("瀏覽器不支援自動讀取剪貼簿。\n請直接長按下方對話框貼上「專屬同步網址」：");
+                if (input) { document.getElementById('syncInput').value = input; }
+            }
+        }
+
         function submitSyncCode() {
-            const cleanKey = extractSyncKey(tempSyncCode);
-            if (!cleanKey || cleanKey.length !== 6) {
-                showAlert("❌ 格式不正確", "請輸入完整的 6 碼代碼，或貼上同步網址！");
+            const rawInput = document.getElementById('syncInput').value;
+            const cleanKey = extractSyncKey(rawInput);
+            if (!cleanKey) {
+                showAlert("❌ 格式不正確", "請貼上完整的專屬同步網址喔！");
                 return;
             }
 
-            showConfirm("⚡ 確定連線？", `連線至「TEA-${cleanKey}」將覆蓋此裝置現有紀錄！確定嗎？`, async () => {
+            showConfirm("⚡ 確定連線？", `連線至朋友的雲端房間將覆蓋此裝置現有紀錄！確定嗎？`, async () => {
                 const btnText = document.getElementById('syncBtnText');
                 const btnLoading = document.getElementById('syncBtnLoading');
                 btnText.classList.add('invisible');
@@ -848,14 +813,15 @@
                 syncKey = cleanKey;
                 safeStorage.setItem('drinkSyncKey', syncKey);
                 
-                await pullFromCloud(); // 配對後立刻去雲端拉取一次最新資料
+                // 配對後立刻去雲端拉取一次最新資料
+                await pullFromCloud();
 
                 setTimeout(() => {
                     closeSyncModal();
                     triggerConfetti();
                     btnText.classList.remove('invisible');
                     btnLoading.classList.add('hidden');
-                    showAlert("🎉 連線成功！", `已成功切換至 TEA-${cleanKey} 頻道，即時同步已啟動！`);
+                    showAlert("🎉 連線成功！", `已成功切換雲端頻道，即時同步已啟動！`);
                 }, 800);
             });
         }
@@ -876,10 +842,7 @@
         window.copyShareLink = copyShareLink;
         window.openSyncModal = openSyncModal;
         window.closeSyncModal = closeSyncModal;
-        window.pressSyncKey = pressSyncKey;
-        window.clearSyncKey = clearSyncKey;
-        window.backspaceSyncKey = backspaceSyncKey;
-        window.pasteSyncKey = pasteSyncKey;
+        window.pasteToInput = pasteToInput;
         window.submitSyncCode = submitSyncCode;
         window.selectDrink = selectDrink;
         window.redeemDrink = redeemDrink;
