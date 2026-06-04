@@ -142,7 +142,7 @@
                     <span id="syncIndicatorDot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
                 </span>
                 <div>
-                    <div id="syncStatusText" class="font-bold text-matcha-700">多人雲端連線中 🟢</div>
+                    <div id="syncStatusText" class="font-bold text-matcha-700">雲端對齊中... 🟢</div>
                     <div class="text-[10px] text-[#8D6E63] mt-0.5 font-bold flex items-center gap-1.5">
                         代碼：
                         <span onclick="copyShareLink()" class="font-mono bg-[#EADBC8] px-1.5 py-0.5 rounded font-black text-[#5C3D2E] cursor-pointer hover:bg-[#dfd0bd] active:scale-95 transition-all text-[9px] break-all max-w-[130px] inline-block truncate" id="syncKeyDisplay" title="點擊複製一鍵配對連結">載入中...</span>
@@ -151,7 +151,7 @@
                 </div>
             </div>
             <div class="flex gap-1.5">
-                <button onclick="openSyncModal()" class="bg-[#FFF5E4] border border-[#6D4C41] text-[#6D4C41] font-bold px-2.5 py-1 rounded-xl hover:bg-[#EADBC8] active:translate-y-0.5 transition-all text-[11px]">
+                <button onclick="openSyncModal()" class="bg-[#FFF5E4] border border-[#6D4C41] text-[#6D4C41] font-bold px-2 py-1 rounded-xl hover:bg-[#EADBC8] active:translate-y-0.5 transition-all text-[11px]">
                     🔗 配對
                 </button>
                 <button onclick="manualSync()" class="bg-matcha-500 border border-[#6D4C41] text-white font-bold px-2.5 py-1 rounded-xl hover:bg-matcha-600 active:translate-y-0.5 transition-all text-[11px]">
@@ -290,38 +290,8 @@
             </div>
         </div>
 
-        <!-- 使用規則與條款 -->
-        <div class="cute-card bg-white rounded-3xl p-6 space-y-3">
-            <h3 class="text-md font-bold text-[#6D4C41] flex items-center gap-2">
-                <i class="fa-solid fa-circle-info text-amber-500"></i>
-                📜 系統使用須知 (Terms of Service)
-            </h3>
-            <ul class="text-xs text-[#8D6E63] space-y-2 leading-relaxed">
-                <li class="flex items-start gap-1.5">
-                    <span class="text-matcha-500">🟢</span>
-                    <span><strong>額度限制：</strong> 總扣打預算為 <strong class="text-[#6D4C41]">NT$ 6,000 元</strong>，每杯購買金額會從本網頁即時扣除。本系統為一次性額度，6,000 元花完即宣告系統永久下線，請珍惜使用！</span>
-                </li>
-                <li class="flex items-start gap-1.5">
-                    <span class="text-matcha-500">🟢</span>
-                    <span><strong>有效期限：</strong> 授權自 <strong class="text-[#6D4C41]">2026/07/06</strong> 起，至 <strong class="text-[#6D4C41]">2027/07/05 23:59</strong> 止，逾期未用之額度自動歸零歸女友！</span>
-                </li>
-                <li class="flex items-start gap-1.5">
-                    <span class="text-matcha-500">🟢</span>
-                    <span><strong>撒嬌加料條款：</strong> 若想喝更高級飲料，持券人可以用撒嬌、親一口或抱抱來跟女友獲取免費「加料」或「升級大杯」的隱藏隨機事件。</span>
-                </li>
-                <li class="flex items-start gap-1.5">
-                    <span class="text-matcha-500">🟢</span>
-                    <span><strong>合理頻率限制：</strong> 為了持券人腸胃健康，本系統每日最高兌換上限為 2 杯，禁止暴飲暴食。</span>
-                </li>
-                <li class="flex items-start gap-1.5">
-                    <span class="text-matcha-500">🟢</span>
-                    <span><strong>防偽警告：</strong> 本 API 僅限對女友本人核銷。若將連結外流、轉讓給其他工程師同行，女友將啟動系統終止程序並沒收全部扣打。</span>
-                </li>
-            </ul>
-        </div>
-
-        <!-- 系統重置按鈕 -->
-        <div class="text-center">
+        <!-- 隱藏的系統重置按鈕 -->
+        <div class="text-center mt-4">
             <button onclick="confirmReset()" class="text-[10px] text-gray-400 hover:text-red-400 transition-colors">
                 ⚠️ 重置系統數據 (請勿隨意點擊)
             </button>
@@ -413,7 +383,7 @@
         </div>
     </div>
 
-    <!-- 零相依性核心邏輯 (使用無金鑰免註冊的 jsonblob 進行雙機同步) -->
+    <!-- 零相依性核心邏輯 (使用 kvdb 進行完全通暢的雙機同步) -->
     <script>
         const TOTAL_BUDGET = 6000;
         let remaining = TOTAL_BUDGET;
@@ -436,9 +406,9 @@
             }
         };
 
-        // ⏱️ 網絡超時請求
+        // ⏱️ 網絡超時請求保護
         async function fetchWithTimeout(resource, options = {}) {
-            const { timeout = 10000 } = options; // 10秒超時
+            const { timeout = 8000 } = options; 
             const controller = new AbortController();
             const id = setTimeout(() => controller.abort(), timeout);
             try {
@@ -567,6 +537,18 @@
             return null;
         }
 
+        // 🛠️ 16字元 Bucket ID 轉換（將 6 碼重疊補齊為 16 碼，符合資料庫標準）
+        function getCleanBucketId(rawCode) {
+            if (!rawCode) return null;
+            let hex = rawCode.trim().toLowerCase().replace(/[^0-9a-f]/g, '');
+            if (hex.length === 0) return null;
+            let bucket = hex;
+            while (bucket.length < 16) {
+                bucket += hex;
+            }
+            return bucket.substring(0, 16);
+        }
+
         // 🛠️ 產生 6 碼隨機純 Hex（0-9 與 A-F）代碼
         function generateSyncCode() {
             const chars = '0123456789ABCDEF';
@@ -577,81 +559,61 @@
             return result;
         }
 
-        // ☁️ 從雲端 API 拉取資料 (優雅捕獲 AbortError 中斷，安全離線切換)
+        // ☁️ 核心通訊：從雲端拉取資料 (GET 簡單請求，100% 避開 CORS 錯誤)
         async function pullFromCloud() {
             if (!syncKey) return;
+            const bucketId = getCleanBucketId(syncKey);
+            if (!bucketId) return;
+
             try {
-                const response = await fetchWithTimeout(`https://jsonblob.com/api/jsonBlob/${syncKey}`, {
-                    method: 'GET',
-                    headers: { 'Accept': 'application/json' }
+                const response = await fetchWithTimeout(`https://kvdb.io/${bucketId}/data`, {
+                    method: 'GET'
                 });
                 
                 if (response.ok) {
-                    const data = await response.json();
-                    if (data && typeof data.remainingBudget === 'number') {
-                        remaining = data.remainingBudget;
-                        historyList = data.logs || [];
-                        updateUI(false); 
-                        updateSyncStatus("connected");
+                    const text = await response.text();
+                    if (text) {
+                        const data = JSON.parse(text);
+                        if (data && typeof data.remainingBudget === 'number') {
+                            let needUpdate = false;
+                            // 只有在雲端資料有變動時，才刷新畫面，防止畫面閃爍
+                            if (remaining !== data.remainingBudget || JSON.stringify(historyList) !== JSON.stringify(data.logs)) {
+                                remaining = data.remainingBudget;
+                                historyList = data.logs || [];
+                                needUpdate = true;
+                            }
+                            if (needUpdate) {
+                                updateUI(false); // 更新本地畫面，不再觸發上傳
+                            }
+                        }
                     }
+                    updateSyncStatus("connected");
                 } else if (response.status === 404) {
+                    // 如果雲端尚無此頻道資料，將本機資料推上去建立
                     await pushToCloud();
                 } else {
                     updateSyncStatus("offline");
                 }
             } catch (err) {
-                if (err.name === 'AbortError') {
-                    console.warn("雲端拉取超時，自動切換至本機對齊。");
-                    updateSyncStatus("timeout");
-                } else {
-                    console.warn("雲端同步異常，載入本機快取:", err);
-                    updateSyncStatus("offline");
-                }
+                updateSyncStatus("timeout");
             }
         }
 
-        // ☁️ 推送資料至雲端 API (使用 POST 新增 / PUT 覆蓋，繞過預檢)
+        // ☁️ 核心通訊：推送資料至雲端 (POST 簡單請求，絕對不卡 OPTIONS 預檢！)
         async function pushToCloud() {
             if (!syncKey) return;
+            const bucketId = getCleanBucketId(syncKey);
+            if (!bucketId) return;
+
             try {
-                // 發起 PUT 請求覆蓋現有金鑰空間
-                await fetchWithTimeout(`https://jsonblob.com/api/jsonBlob/${syncKey}`, {
-                    method: 'PUT',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
+                await fetchWithTimeout(`https://kvdb.io/${bucketId}/data`, {
+                    method: 'POST',
                     body: JSON.stringify({ remainingBudget: remaining, logs: historyList })
                 });
                 updateSyncStatus("connected");
             } catch (err) {
-                if (err.name === 'AbortError') {
-                    console.warn("雲端推送超時，本機快取將於下次同步時對齊。");
-                    updateSyncStatus("timeout");
-                } else {
-                    console.warn("雲端推送失敗:", err);
-                    updateSyncStatus("offline");
-                }
+                updateSyncStatus("timeout");
             }
-        }
-
-        // 🚀 初始化申請一個全新的雲端金鑰空間
-        async function createNewCloudSpace() {
-            try {
-                const response = await fetchWithTimeout('https://jsonblob.com/api/jsonBlob', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ remainingBudget: TOTAL_BUDGET, logs: [] })
-                });
-                if (response.ok) {
-                    const locationHeader = response.headers.get('Location');
-                    const blobId = response.headers.get('X-Jsonblob-Id') || (locationHeader ? locationHeader.substring(locationHeader.lastIndexOf('/') + 1) : null);
-                    if (blobId) return blobId;
-                }
-            } catch (e) {
-                console.warn("無法生成動態空間，使用靜態回退");
-            }
-            return generateSyncCode();
         }
 
         function getQueryParam(param) {
@@ -659,6 +621,7 @@
             catch(e) { return null; }
         }
 
+        // 🚀 初始化全系統
         async function initApp() {
             // 一鍵配對檢查
             let urlSyncKey = getQueryParam('sync');
@@ -672,29 +635,26 @@
             }
 
             syncKey = safeStorage.getItem('drinkSyncKey');
-            
-            // 載入本地先墊檔
+            if (!syncKey) {
+                syncKey = generateSyncCode();
+                safeStorage.setItem('drinkSyncKey', syncKey);
+            }
+            document.getElementById('syncKeyDisplay').innerText = "TEA-" + syncKey;
+
+            // 先載入本地紀錄防空白
             const savedRemaining = safeStorage.getItem('drink_remaining');
             remaining = parseInt(savedRemaining);
             if (isNaN(remaining)) remaining = TOTAL_BUDGET;
             try { historyList = JSON.parse(safeStorage.getItem('drink_history')) || []; } catch(e) { historyList = []; }
             updateUI(false);
 
-            // 若無金鑰，向雲端申請一個
-            if (!syncKey) {
-                syncKey = await createNewCloudSpace();
-                safeStorage.setItem('drinkSyncKey', syncKey);
-                document.getElementById('syncKeyDisplay').innerText = syncKey.substring(0, 6).toUpperCase();
-            } else {
-                document.getElementById('syncKeyDisplay').innerText = syncKey.substring(0, 6).toUpperCase();
-                // 首次拉取同步
-                await pullFromCloud();
-            }
+            // 啟動首次雲端對齊
+            await pullFromCloud();
 
-            // 啟動 5秒 智慧背景自動即時同步對齊輪詢
+            // ⏱️ 啟動 3 秒智慧背景自動即時同步拉取 (免重整神器！)
             setInterval(async () => {
                 await pullFromCloud();
-            }, 5000);
+            }, 3000);
         }
 
         function updateUI(writeToCloud = true) {
@@ -708,18 +668,20 @@
 
             safeStorage.setItem('drink_remaining', remaining);
             safeStorage.setItem('drink_history', JSON.stringify(historyList));
-            if(syncKey) safeStorage.setItem('drinkSyncKey', syncKey);
-            document.getElementById('syncKeyDisplay').innerText = syncKey ? syncKey.substring(0, 6).toUpperCase() : "載入中";
+            safeStorage.setItem('drinkSyncKey', syncKey);
+            document.getElementById('syncKeyDisplay').innerText = "TEA-" + syncKey;
 
             const cupMouth = document.getElementById('cupMouth');
             if (remaining <= 0) cupMouth.className = "w-4 h-2 border-t-4 border-[#2b1e16] rounded-full mt-1"; 
             else cupMouth.className = "w-4 h-2 border-b-4 border-[#2b1e16] rounded-full";
 
-            if (writeToCloud) pushToCloud();
+            if (writeToCloud) {
+                pushToCloud();
+            }
             renderHistory();
         }
 
-        // 🍃 Preset 飲料
+        // 🍃 Preset 飲料點選
         function selectDrink(name, defaultPrice, btnElement) {
             selectedDrinkName = name;
             document.getElementById('selectedDrinkLabel').innerText = name;
@@ -771,7 +733,7 @@
             
             triggerConfetti();
             resetDrinkSelection();
-            updateUI(true);
+            updateUI(true); // 這裡傳 true，扣款後會立刻 pushToCloud() 推送上雲端！
 
             setTimeout(() => {
                 entireCupGroup.classList.remove('happy-shake-active');
@@ -812,7 +774,7 @@
             showConfirm("💡 刪除確認", "確定要取消這筆紀錄嗎？金額會退回扣打中喔！", () => {
                 remaining = Math.min(TOTAL_BUDGET, remaining + price);
                 historyList = historyList.filter(item => item.id !== id);
-                updateUI(true);
+                updateUI(true); // 刪除後也推上雲端
             });
         }
 
@@ -886,7 +848,7 @@
                 syncKey = cleanKey;
                 safeStorage.setItem('drinkSyncKey', syncKey);
                 
-                await pullFromCloud();
+                await pullFromCloud(); // 配對後立刻去雲端拉取一次最新資料
 
                 setTimeout(() => {
                     closeSyncModal();
@@ -910,7 +872,7 @@
             } catch(e) {}
         }
 
-        // 將函式掛載至 window 供 HTML 事件調用
+        // 將所有函式掛載至 window 供 HTML 事件調用
         window.copyShareLink = copyShareLink;
         window.openSyncModal = openSyncModal;
         window.closeSyncModal = closeSyncModal;
@@ -927,6 +889,7 @@
         window.closeConfirmModal = closeConfirmModal;
         window.manualSync = manualSync;
 
+        // 網頁載入時啟動
         window.onload = function() {
             initApp();
         }
