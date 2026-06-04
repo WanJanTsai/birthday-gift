@@ -151,8 +151,11 @@
                 </div>
             </div>
             <div class="flex gap-1.5">
-                <button onclick="openSyncModal()" class="bg-[#FFF5E4] border border-[#6D4C41] text-[#6D4C41] font-bold px-2 py-1 rounded-xl hover:bg-[#EADBC8] active:translate-y-0.5 transition-all text-[11px]">
+                <button onclick="openSyncModal()" class="bg-[#FFF5E4] border border-[#6D4C41] text-[#6D4C41] font-bold px-2.5 py-1 rounded-xl hover:bg-[#EADBC8] active:translate-y-0.5 transition-all text-[11px]">
                     🔗 配對
+                </button>
+                <button onclick="manualSync()" class="bg-matcha-500 border border-[#6D4C41] text-white font-bold px-2.5 py-1 rounded-xl hover:bg-matcha-600 active:translate-y-0.5 transition-all text-[11px]">
+                    🔄 刷新
                 </button>
             </div>
         </div>
@@ -410,12 +413,8 @@
         </div>
     </div>
 
-    <!-- Firebase 模組 -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    <!-- 零相依性核心邏輯 (使用無金鑰免註冊的 jsonblob 進行雙機同步) -->
+    <script>
         const TOTAL_BUDGET = 6000;
         let remaining = TOTAL_BUDGET;
         let historyList = [];
@@ -424,11 +423,6 @@
         
         let syncKey = "";
         let tempSyncCode = "";
-        
-        let db = null;
-        let auth = null;
-        let unsubscribeOnSnapshot = null;
-        let isFirebaseReady = false;
 
         // 🛡️ 本地安全儲存
         const safeStorage = {
@@ -441,6 +435,21 @@
                 catch (e) { window[key] = value; }
             }
         };
+
+        // ⏱️ 網絡超時請求
+        async function fetchWithTimeout(resource, options = {}) {
+            const { timeout = 10000 } = options; // 10秒超時
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            try {
+                const response = await fetch(resource, { ...options, signal: controller.signal });
+                clearTimeout(id);
+                return response;
+            } catch (error) {
+                clearTimeout(id);
+                throw error;
+            }
+        }
 
         // 🎛️ 彈窗顯現/隱藏控制
         function openModal(id) {
@@ -469,6 +478,32 @@
             closeModal('confirmModal');
             if (isConfirmed && confirmCallback) confirmCallback();
             confirmCallback = null;
+        }
+
+        // 🎛️ 雲端同步狀態指示器更換
+        function updateSyncStatus(status) {
+            const statusText = document.getElementById("syncStatusText");
+            const pingDot = document.getElementById("syncIndicatorPing");
+            const statusDot = document.getElementById("syncIndicatorDot");
+            
+            if (!statusText || !pingDot || !statusDot) return;
+
+            if (status === "connected") {
+                statusText.innerText = "雙機即時對齊中 🟢";
+                statusText.className = "font-bold text-matcha-700";
+                pingDot.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75";
+                statusDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500";
+            } else if (status === "timeout") {
+                statusText.innerText = "連線稍慢，本機對齊中 🟡";
+                statusText.className = "font-bold text-amber-600";
+                pingDot.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75";
+                statusDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500";
+            } else if (status === "offline") {
+                statusText.innerText = "離線模式，本機安全儲存 🔴";
+                statusText.className = "font-bold text-rose-500";
+                pingDot.className = "absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-0";
+                statusDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500";
+            }
         }
 
         // 📋 智慧複製一鍵同步網址
@@ -532,6 +567,7 @@
             return null;
         }
 
+        // 🛠️ 產生 6 碼隨機純 Hex（0-9 與 A-F）代碼
         function generateSyncCode() {
             const chars = '0123456789ABCDEF';
             let result = '';
@@ -541,108 +577,81 @@
             return result;
         }
 
-        function updateSyncStatus(status) {
-            const statusText = document.getElementById("syncStatusText");
-            const pingDot = document.getElementById("syncIndicatorPing");
-            const statusDot = document.getElementById("syncIndicatorDot");
-            
-            if (!statusText || !pingDot || !statusDot) return;
-
-            if (status === "connected") {
-                statusText.innerText = "多人雲端連線中 🟢";
-                statusText.className = "font-bold text-matcha-700";
-                pingDot.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75";
-                statusDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500";
-            } else if (status === "offline") {
-                statusText.innerText = "連線失敗，請重整 🔴";
-                statusText.className = "font-bold text-rose-500";
-                pingDot.className = "absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-0";
-                statusDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500";
-            }
-        }
-
-        // 🔥 Firestore 核心連線 (遵循三大規則)
-        async function initFirebase() {
+        // ☁️ 從雲端 API 拉取資料 (優雅捕獲 AbortError 中斷，安全離線切換)
+        async function pullFromCloud() {
+            if (!syncKey) return;
             try {
-                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
-                    throw new Error("無 Firebase 配置");
-                }
-                
-                const firebaseConfig = JSON.parse(__firebase_config);
-                const app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                // RULE 3: 驗證後才可操作
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                isFirebaseReady = true;
-
-                onAuthStateChanged(auth, (user) => {
-                    if (user && syncKey) {
-                        startListening(syncKey);
-                    }
+                const response = await fetchWithTimeout(`https://jsonblob.com/api/jsonBlob/${syncKey}`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
                 });
-
-            } catch (e) {
-                console.error("Firebase 初始化失敗:", e);
-                updateSyncStatus("offline");
-                showAlert("⚠️ 連線異常", "雲端資料庫初始化失敗，這可能是因為預覽環境的限制。若要完美體驗多人即時連線，請確保此頁面在有網路且配置正確的環境下運行。");
                 
-                // Fallback 本地
-                updateUI(false);
-            }
-        }
-
-        // 🟢 啟動秒級即時監聽
-        function startListening(key) {
-            if (!isFirebaseReady || !db || !auth.currentUser) return;
-            
-            if (unsubscribeOnSnapshot) unsubscribeOnSnapshot();
-
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'oolong-tea-gift';
-            // RULE 1: 嚴格路徑
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'cards', key);
-
-            updateSyncStatus("connected");
-
-            unsubscribeOnSnapshot = onSnapshot(docRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
+                if (response.ok) {
+                    const data = await response.json();
                     if (data && typeof data.remainingBudget === 'number') {
                         remaining = data.remainingBudget;
                         historyList = data.logs || [];
                         updateUI(false); 
+                        updateSyncStatus("connected");
                     }
+                } else if (response.status === 404) {
+                    await pushToCloud();
                 } else {
-                    // 若無資料，將目前的狀態寫入初始化
-                    pushToCloud();
+                    updateSyncStatus("offline");
                 }
-            }, (error) => {
-                console.error("即時監聽錯誤:", error);
-                updateSyncStatus("offline");
-            });
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    console.warn("雲端拉取超時，自動切換至本機對齊。");
+                    updateSyncStatus("timeout");
+                } else {
+                    console.warn("雲端同步異常，載入本機快取:", err);
+                    updateSyncStatus("offline");
+                }
+            }
         }
 
-        // 📤 推送至 Firestore
+        // ☁️ 推送資料至雲端 API (使用 POST 新增 / PUT 覆蓋，繞過預檢)
         async function pushToCloud() {
-            if (!isFirebaseReady || !db || !auth.currentUser || !syncKey) return;
-            
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'oolong-tea-gift';
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'cards', syncKey);
-            
+            if (!syncKey) return;
             try {
-                await setDoc(docRef, {
-                    remainingBudget: remaining,
-                    logs: historyList
+                // 發起 PUT 請求覆蓋現有金鑰空間
+                await fetchWithTimeout(`https://jsonblob.com/api/jsonBlob/${syncKey}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ remainingBudget: remaining, logs: historyList })
                 });
+                updateSyncStatus("connected");
             } catch (err) {
-                console.error("資料儲存失敗:", err);
+                if (err.name === 'AbortError') {
+                    console.warn("雲端推送超時，本機快取將於下次同步時對齊。");
+                    updateSyncStatus("timeout");
+                } else {
+                    console.warn("雲端推送失敗:", err);
+                    updateSyncStatus("offline");
+                }
             }
+        }
+
+        // 🚀 初始化申請一個全新的雲端金鑰空間
+        async function createNewCloudSpace() {
+            try {
+                const response = await fetchWithTimeout('https://jsonblob.com/api/jsonBlob', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ remainingBudget: TOTAL_BUDGET, logs: [] })
+                });
+                if (response.ok) {
+                    const locationHeader = response.headers.get('Location');
+                    const blobId = response.headers.get('X-Jsonblob-Id') || (locationHeader ? locationHeader.substring(locationHeader.lastIndexOf('/') + 1) : null);
+                    if (blobId) return blobId;
+                }
+            } catch (e) {
+                console.warn("無法生成動態空間，使用靜態回退");
+            }
+            return generateSyncCode();
         }
 
         function getQueryParam(param) {
@@ -663,12 +672,7 @@
             }
 
             syncKey = safeStorage.getItem('drinkSyncKey');
-            if (!syncKey) {
-                syncKey = generateSyncCode();
-                safeStorage.setItem('drinkSyncKey', syncKey);
-            }
-            document.getElementById('syncKeyDisplay').innerText = "TEA-" + syncKey;
-
+            
             // 載入本地先墊檔
             const savedRemaining = safeStorage.getItem('drink_remaining');
             remaining = parseInt(savedRemaining);
@@ -676,8 +680,21 @@
             try { historyList = JSON.parse(safeStorage.getItem('drink_history')) || []; } catch(e) { historyList = []; }
             updateUI(false);
 
-            // 啟動 Firebase
-            await initFirebase();
+            // 若無金鑰，向雲端申請一個
+            if (!syncKey) {
+                syncKey = await createNewCloudSpace();
+                safeStorage.setItem('drinkSyncKey', syncKey);
+                document.getElementById('syncKeyDisplay').innerText = syncKey.substring(0, 6).toUpperCase();
+            } else {
+                document.getElementById('syncKeyDisplay').innerText = syncKey.substring(0, 6).toUpperCase();
+                // 首次拉取同步
+                await pullFromCloud();
+            }
+
+            // 啟動 5秒 智慧背景自動即時同步對齊輪詢
+            setInterval(async () => {
+                await pullFromCloud();
+            }, 5000);
         }
 
         function updateUI(writeToCloud = true) {
@@ -691,8 +708,8 @@
 
             safeStorage.setItem('drink_remaining', remaining);
             safeStorage.setItem('drink_history', JSON.stringify(historyList));
-            safeStorage.setItem('drinkSyncKey', syncKey);
-            document.getElementById('syncKeyDisplay').innerText = "TEA-" + syncKey;
+            if(syncKey) safeStorage.setItem('drinkSyncKey', syncKey);
+            document.getElementById('syncKeyDisplay').innerText = syncKey ? syncKey.substring(0, 6).toUpperCase() : "載入中";
 
             const cupMouth = document.getElementById('cupMouth');
             if (remaining <= 0) cupMouth.className = "w-4 h-2 border-t-4 border-[#2b1e16] rounded-full mt-1"; 
@@ -860,7 +877,7 @@
                 return;
             }
 
-            showConfirm("⚡ 確定連線？", `連線至「TEA-${cleanKey}」將覆蓋此裝置現有紀錄！確定嗎？`, () => {
+            showConfirm("⚡ 確定連線？", `連線至「TEA-${cleanKey}」將覆蓋此裝置現有紀錄！確定嗎？`, async () => {
                 const btnText = document.getElementById('syncBtnText');
                 const btnLoading = document.getElementById('syncBtnLoading');
                 btnText.classList.add('invisible');
@@ -869,9 +886,7 @@
                 syncKey = cleanKey;
                 safeStorage.setItem('drinkSyncKey', syncKey);
                 
-                if (isFirebaseReady) {
-                    startListening(syncKey);
-                }
+                await pullFromCloud();
 
                 setTimeout(() => {
                     closeSyncModal();
@@ -881,6 +896,12 @@
                     showAlert("🎉 連線成功！", `已成功切換至 TEA-${cleanKey} 頻道，即時同步已啟動！`);
                 }, 800);
             });
+        }
+
+        // 🔄 手動刷新
+        async function manualSync() {
+            updateSyncStatus("timeout");
+            await pullFromCloud();
         }
 
         function triggerConfetti() {
@@ -904,6 +925,7 @@
         window.confirmReset = confirmReset;
         window.closeAlertModal = closeAlertModal;
         window.closeConfirmModal = closeConfirmModal;
+        window.manualSync = manualSync;
 
         window.onload = function() {
             initApp();
