@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>男友專屬・專屬飲料兌換券 (連動版)</title>
+    <!-- 引入可愛圓潤字體 Quicksand & 繁體中文 Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <!-- FontAwesome 圖標 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Tailwind CSS 結構與樣式 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 爆米花紙花特效 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cute: ['"Fredoka"', '"Nunito"', '"Microsoft JhengHei"', 'sans-serif'],
+                    },
+                    colors: {
+                        peach: {
+                            50: '#FFF5F5',
+                            100: '#FFE5E5',
+                            200: '#FFCDCD',
+                            300: '#FFA4A4',
+                        },
+                        matcha: {
+                            100: '#E8F5E9',
+                            200: '#C8E6C9',
+                            300: '#A5D6A7',
+                            500: '#4CAF50',
+                            600: '#43A047',
+                            700: '#2E7D32',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Fredoka', 'Nunito', 'Microsoft JhengHei', sans-serif;
+            background: linear-gradient(135deg, #FFF5F5 0%, #E8F5E9 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 背景飄浮泡泡效果 */
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(165, 214, 167, 0.2);
+            animation: floatUp 8s infinite ease-in-out;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        }
+
+        /* 甜美微陰影與 Q 彈縮放 */
+        .cute-card {
+            box-shadow: 0 10px 30px rgba(109, 76, 65, 0.08);
+            border: 3px solid #6D4C41;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .cute-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(109, 76, 65, 0.12);
+        }
+
+        /* 可愛按鈕動態 */
+        .cute-btn {
+            border: 3px solid #6D4C41;
+            box-shadow: 0 4px 0 #6D4C41;
+            transition: all 0.1s ease;
+        }
+        .cute-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #6D4C41;
+        }
+
+        /* 珍奶杯水波浪動畫 */
+        @keyframes wave {
+            0%, 100% { transform: translateX(0) translateZ(0) scaleY(1); }
+            50% { transform: translateX(-25%) translateZ(0) scaleY(0.85); }
+        }
+        .wave-effect {
+            animation: wave 4s infinite linear;
+        }
+
+        /* 珍奶杯扣款成功時的開心搖擺特效 */
+        @keyframes cupShaking {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            20% { transform: rotate(-8deg) scale(1.05); }
+            40% { transform: rotate(6deg) scale(1.05); }
+            60% { transform: rotate(-4deg) scale(1.03); }
+            80% { transform: rotate(2deg) scale(1.01); }
+        }
+        .happy-shake-active {
+            animation: cupShaking 0.6s ease-in-out !important;
+        }
+    </style>
+</head>
+<body class="py-6 px-4 flex flex-col items-center justify-center">
+
+    <div class="bubble w-12 h-12" style="left: 10%; animation-delay: 0s; animation-duration: 6s;"></div>
+    <div class="bubble w-8 h-8" style="left: 25%; animation-delay: 2s; animation-duration: 9s;"></div>
+    <div class="bubble w-16 h-16" style="left: 70%; animation-delay: 1s; animation-duration: 8s;"></div>
+    <div class="bubble w-10 h-10" style="left: 85%; animation-delay: 4s; animation-duration: 7s;"></div>
+
+    <div class="max-w-md w-full z-10 space-y-4">
+
+        <!-- 標題與 LOGO -->
+        <div class="text-center space-y-1.5">
+            <div class="inline-block bg-matcha-200 text-matcha-700 px-4 py-1.5 rounded-full text-xs font-bold border-2 border-[#6D4C41] shadow-sm">
+                🎉 HAPPY BIRTHDAY MY LOVE!
+            </div>
+            <h1 class="text-3xl font-extrabold text-[#6D4C41] flex items-center justify-center gap-2">
+                <i class="fa-solid fa-mug-hot text-amber-600 animate-bounce"></i>
+                專屬飲料兌換券
+            </h1>
+            <p class="text-xs text-[#8D6E63] font-semibold tracking-wider">
+                男友專屬・手搖飲 6,000 元限額生日卡
+            </p>
+        </div>
+
+        <!-- 🟢 雲端即時狀態連線列 -->
+        <div class="bg-[#F0F5F1] border-3 border-[#6D4C41] rounded-2xl p-3 flex items-center justify-between text-xs shadow-sm">
+            <div class="flex items-center gap-2">
+                <span class="relative flex h-2.5 w-2.5">
+                    <span id="syncIndicatorPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span id="syncIndicatorDot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                </span>
+                <div>
+                    <div id="syncStatusText" class="font-bold text-matcha-700">多人雲端連線中 🟢</div>
+                    <div class="text-[10px] text-[#8D6E63] mt-0.5 font-bold flex items-center gap-1.5">
+                        代碼：
+                        <span onclick="copyShareLink()" class="font-mono bg-[#EADBC8] px-1.5 py-0.5 rounded font-black text-[#5C3D2E] cursor-pointer hover:bg-[#dfd0bd] active:scale-95 transition-all text-[9px] break-all max-w-[130px] inline-block truncate" id="syncKeyDisplay" title="點擊複製一鍵配對連結">載入中...</span>
+                        <button onclick="copyShareLink()" class="text-[#5C3D2E] hover:text-[#8D6E63] transition-colors" title="複製同步網址">📋</button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-1.5">
+                <button onclick="openSyncModal()" class="bg-[#FFF5E4] border border-[#6D4C41] text-[#6D4C41] font-bold px-2 py-1 rounded-xl hover:bg-[#EADBC8] active:translate-y-0.5 transition-all text-[11px]">
+                    🔗 配對
+                </button>
+            </div>
+        </div>
+
+        <!-- 珍奶杯水高度展示卡片 -->
+        <div class="cute-card bg-white rounded-3xl p-6 text-center relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-24 h-24 bg-peach-100 rounded-full opacity-50"></div>
+            
+            <p class="text-[#8D6E63] font-bold text-lg mb-2">🥤 剩餘扣打進度條</p>
+
+            <!-- 珍奶杯主體 -->
+            <div id="entireCupGroup" class="relative w-36 h-48 mx-auto my-6 bg-amber-50 rounded-b-[40px] rounded-t-lg border-4 border-[#6D4C41] flex items-end overflow-hidden shadow-inner z-10">
+                <!-- 粗吸管 -->
+                <div class="absolute -top-12 right-10 w-6 h-36 bg-pink-300 rounded-full transform rotate-12 -z-10 border-r-4 border-l-4 border-pink-400"></div>
+                
+                <!-- 茶液體 -->
+                <div id="liquid" class="w-[200%] h-3/4 bg-[#e9c46a] absolute bottom-0 left-0 wave-effect origin-bottom transition-all duration-1000 ease-out" style="border-top: 4px solid #d4a327;">
+                    <!-- 液體裡面的珍珠 -->
+                    <div class="absolute bottom-3 left-4 w-5 h-5 bg-[#2b1e16] rounded-full shadow-sm"></div>
+                    <div class="absolute bottom-5 left-12 w-5 h-5 bg-[#2b1e16] rounded-full shadow-sm"></div>
+                    <div class="absolute bottom-2 left-20 w-5 h-5 bg-[#2b1e16] rounded-full shadow-sm"></div>
+                    <div class="absolute bottom-7 left-24 w-5 h-5 bg-[#2b1e16] rounded-full shadow-sm"></div>
+                    <div class="absolute bottom-4 left-8 w-5 h-5 bg-[#2b1e16] rounded-full shadow-sm"></div>
+                    <div class="absolute bottom-6 left-16 w-5 h-5 bg-[#2b1e16] rounded-full shadow-sm"></div>
+                </div>
+
+                <!-- 杯身上的可愛表情 -->
+                <div class="absolute top-12 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none">
+                    <div class="flex gap-6">
+                        <div class="w-2.5 h-2.5 bg-[#2b1e16] rounded-full"></div>
+                        <div class="w-2.5 h-2.5 bg-[#2b1e16] rounded-full"></div>
+                    </div>
+                    <div class="w-4 h-2 border-b-4 border-[#2b1e16] rounded-full" id="cupMouth"></div>
+                </div>
+            </div>
+
+            <!-- 數字看板 -->
+            <div class="grid grid-cols-2 gap-4 mt-6 border-t-2 border-dashed border-peach-200 pt-4">
+                <div class="text-left pl-2">
+                    <p class="text-xs text-[#8D6E63] font-bold">目前剩餘額度</p>
+                    <p class="text-3xl font-black text-matcha-700 font-cute mt-1">
+                        $<span id="remainingMoney">6000</span>
+                    </p>
+                </div>
+                <div class="text-right pr-2">
+                    <p class="text-xs text-[#8D6E63] font-bold">累計已喝金額</p>
+                    <p class="text-3xl font-black text-peach-300 font-cute mt-1">
+                        $<span id="spentMoney">0</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 飲料扣款點選表單 -->
+        <div class="cute-card bg-white rounded-3xl p-6 space-y-4">
+            <h3 class="text-lg font-bold text-[#6D4C41] flex items-center gap-2">
+                <i class="fa-solid fa-cart-shopping text-matcha-500"></i>
+                今天想喝什麼呢？
+            </h3>
+            
+            <div class="space-y-4">
+                <!-- 可愛點選 Preset 茶飲標籤 -->
+                <div>
+                    <label class="block text-xs text-[#8D6E63] font-bold mb-2">🍃 快速點選好喝的茶飲</label>
+                    <div class="grid grid-cols-2 gap-2" id="drinkPresetGrid">
+                        <button type="button" onclick="selectDrink('清爽綠茶 🍃', 30, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
+                            <span class="text-xl">🍃</span>
+                            <span>清爽綠茶</span>
+                        </button>
+                        <button type="button" onclick="selectDrink('金萱青茶 🍵', 35, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
+                            <span class="text-xl">🍵</span>
+                            <span>金萱青茶</span>
+                        </button>
+                        <button type="button" onclick="selectDrink('波霸奶茶 🔮', 55, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
+                            <span class="text-xl">🔮</span>
+                            <span>波霸奶茶</span>
+                        </button>
+                        <button type="button" onclick="selectDrink('烏龍茶 🍵', 40, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
+                            <span class="text-xl">🍵</span>
+                            <span>烏龍茶</span>
+                        </button>
+                        <button type="button" onclick="selectDrink('四季春茶 🌸', 35, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
+                            <span class="text-xl">🌸</span>
+                            <span>四季春茶</span>
+                        </button>
+                        <button type="button" onclick="selectDrink('奢華特調 ✨', 80, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
+                            <span class="text-xl">✨</span>
+                            <span>奢華特調</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 點選狀態與微調金額 -->
+                <div class="bg-matcha-100/50 p-3.5 rounded-2xl border-2 border-[#6D4C41] space-y-2.5">
+                    <div class="text-xs text-[#8D6E63] font-bold flex justify-between items-center">
+                        <span>當前點選：</span>
+                        <span id="selectedDrinkLabel" class="text-matcha-700 font-extrabold text-sm">尚未選擇 🥤</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-[#8D6E63] font-bold shrink-0">自訂實際金額：</span>
+                        <input type="number" id="drinkPrice" placeholder="請先點選上方手搖" min="1" max="6000"
+                               class="w-full px-3 py-1.5 rounded-xl border-2 border-matcha-200 focus:border-[#6D4C41] focus:outline-none text-[#6D4C41] font-bold font-cute bg-[#FBFBF2] text-center text-sm">
+                        <span class="text-xs text-[#8D6E63] font-bold shrink-0">元</span>
+                    </div>
+                </div>
+                
+                <button onclick="redeemDrink()" class="cute-btn w-full py-3.5 bg-matcha-500 hover:bg-matcha-600 text-white font-extrabold text-lg rounded-2xl transition duration-150 relative">
+                    <span id="btnText">✨ 注入燃料！(確認兌換) ✨</span>
+                    <span id="btnLoading" class="absolute inset-0 flex items-center justify-center hidden">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 歷史消費日誌 -->
+        <div class="cute-card bg-white rounded-3xl p-6">
+            <h3 class="text-lg font-bold text-[#6D4C41] flex items-center justify-between mb-4">
+                <span class="flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-peach-300"></i>
+                    燃料注入日誌 (Logs)
+                </span>
+                <span class="text-xs bg-peach-100 text-peach-300 px-2 py-0.5 rounded-full font-bold">
+                    最新在最上面
+                </span>
+            </h3>
+
+            <div id="logContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                <div class="flex justify-center items-center py-4">
+                     <i class="fa-solid fa-spinner fa-spin text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 使用規則與條款 -->
+        <div class="cute-card bg-white rounded-3xl p-6 space-y-3">
+            <h3 class="text-md font-bold text-[#6D4C41] flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-amber-500"></i>
+                📜 系統使用須知 (Terms of Service)
+            </h3>
+            <ul class="text-xs text-[#8D6E63] space-y-2 leading-relaxed">
+                <li class="flex items-start gap-1.5">
+                    <span class="text-matcha-500">🟢</span>
+                    <span><strong>額度限制：</strong> 總扣打預算為 <strong class="text-[#6D4C41]">NT$ 6,000 元</strong>，每杯購買金額會從本網頁即時扣除。本系統為一次性額度，6,000 元花完即宣告系統永久下線，請珍惜使用！</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                    <span class="text-matcha-500">🟢</span>
+                    <span><strong>有效期限：</strong> 授權自 <strong class="text-[#6D4C41]">2026/07/06</strong> 起，至 <strong class="text-[#6D4C41]">2027/07/05 23:59</strong> 止，逾期未用之額度自動歸零歸女友！</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                    <span class="text-matcha-500">🟢</span>
+                    <span><strong>撒嬌加料條款：</strong> 若想喝更高級飲料，持券人可以用撒嬌、親一口或抱抱來跟女友獲取免費「加料」或「升級大杯」的隱藏隨機事件。</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                    <span class="text-matcha-500">🟢</span>
+                    <span><strong>合理頻率限制：</strong> 為了持券人腸胃健康，本系統每日最高兌換上限為 2 杯，禁止暴飲暴食。</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                    <span class="text-matcha-500">🟢</span>
+                    <span><strong>防偽警告：</strong> 本 API 僅限對女友本人核銷。若將連結外流、轉讓給其他工程師同行，女友將啟動系統終止程序並沒收全部扣打。</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 系統重置按鈕 -->
+        <div class="text-center">
+            <button onclick="confirmReset()" class="text-[10px] text-gray-400 hover:text-red-400 transition-colors">
+                ⚠️ 重置系統數據 (請勿隨意點擊)
+            </button>
+        </div>
+
+    </div>
+
+    <!-- 🌸 可愛客製化 Alert 彈窗 -->
+    <div id="alertModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+        <div class="bg-white max-w-sm w-full rounded-3xl border-4 border-[#6D4C41] p-6 text-center shadow-xl">
+            <p id="alertTitle" class="text-xl font-extrabold text-[#6D4C41] mb-2">提示</p>
+            <p id="alertText" class="text-sm text-[#8D6E63] font-semibold mb-6 whitespace-pre-line break-all"></p>
+            <button onclick="closeAlertModal()" class="cute-btn w-full py-2.5 bg-matcha-500 hover:bg-matcha-600 text-white font-extrabold rounded-xl">
+                好耶！
+            </button>
+        </div>
+    </div>
+
+    <!-- 🌸 可愛客製化 Confirm 彈窗 -->
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+        <div class="bg-white max-w-sm w-full rounded-3xl border-4 border-[#6D4C41] p-6 text-center shadow-xl">
+            <p id="confirmTitle" class="text-xl font-extrabold text-[#6D4C41] mb-2">確認操作</p>
+            <p id="confirmText" class="text-sm text-[#8D6E63] font-semibold mb-6"></p>
+            <div class="flex gap-3">
+                <button onclick="closeConfirmModal(false)" class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-[#6D4C41] font-bold rounded-xl border-2 border-[#6D4C41]">
+                    先不要
+                </button>
+                <button onclick="closeConfirmModal(true)" class="flex-1 py-2.5 bg-peach-300 hover:bg-peach-400 text-white font-extrabold rounded-xl border-2 border-[#6D4C41] shadow-sm">
+                    確定！
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔗 雙機同步配對彈窗 (Hex 鍵盤) -->
+    <div id="syncModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+        <div class="bg-white max-w-sm w-full rounded-3xl border-4 border-[#6D4C41] p-5 shadow-xl">
+            <h3 class="text-xl font-extrabold text-[#6D4C41] text-center mb-2">🔗 多人連線配對</h3>
+            <p class="text-[11px] text-[#8D6E63] font-semibold text-center mb-4">
+                請輸入或貼上對方的「6碼同步代碼」或「同步網址」：
+            </p>
+            
+            <div class="w-full bg-[#FBFBF2] border-2 border-matcha-200 rounded-xl py-3 px-3 text-center text-xs font-mono font-black text-[#6D4C41] tracking-wider mb-4 break-all min-h-[44px] flex items-center justify-center shadow-inner" id="syncCodeDisplay">
+                請輸入或貼上...
+            </div>
+
+            <!-- Hex 可愛配對小鍵盤 -->
+            <div class="space-y-1 mb-5">
+                <div class="flex justify-center gap-1">
+                    <button onclick="pressSyncKey('1')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">1</button>
+                    <button onclick="pressSyncKey('2')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">2</button>
+                    <button onclick="pressSyncKey('3')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">3</button>
+                    <button onclick="pressSyncKey('4')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">4</button>
+                    <button onclick="pressSyncKey('5')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">5</button>
+                </div>
+                <div class="flex justify-center gap-1">
+                    <button onclick="pressSyncKey('6')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">6</button>
+                    <button onclick="pressSyncKey('7')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">7</button>
+                    <button onclick="pressSyncKey('8')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">8</button>
+                    <button onclick="pressSyncKey('9')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">9</button>
+                    <button onclick="pressSyncKey('0')" class="cute-btn flex-1 py-2.5 bg-[#FFF5E4] rounded-xl font-mono font-black text-sm">0</button>
+                </div>
+                <div class="flex justify-center gap-1">
+                    <button onclick="pressSyncKey('A')" class="cute-btn flex-1 py-2.5 bg-matcha-100 rounded-xl font-mono font-black text-sm">A</button>
+                    <button onclick="pressSyncKey('B')" class="cute-btn flex-1 py-2.5 bg-matcha-100 rounded-xl font-mono font-black text-sm">B</button>
+                    <button onclick="pressSyncKey('C')" class="cute-btn flex-1 py-2.5 bg-matcha-100 rounded-xl font-mono font-black text-sm">C</button>
+                    <button onclick="pressSyncKey('D')" class="cute-btn flex-1 py-2.5 bg-matcha-100 rounded-xl font-mono font-black text-sm">D</button>
+                    <button onclick="pressSyncKey('E')" class="cute-btn flex-1 py-2.5 bg-matcha-100 rounded-xl font-mono font-black text-sm">E</button>
+                    <button onclick="pressSyncKey('F')" class="cute-btn flex-1 py-2.5 bg-matcha-100 rounded-xl font-mono font-black text-sm">F</button>
+                </div>
+                <div class="flex justify-center gap-1 mt-2 pt-2 border-t-2 border-dashed border-gray-200">
+                    <button onclick="pasteSyncKey()" class="cute-btn flex-1 py-2.5 rounded-xl text-xs bg-blue-100 hover:bg-blue-200 font-bold"><i class="fa-solid fa-paste mr-1"></i> 貼上</button>
+                    <button onclick="clearSyncKey()" class="cute-btn flex-1 py-2.5 rounded-xl text-xs bg-peach-100 hover:bg-peach-200 font-bold">清除</button>
+                    <button onclick="backspaceSyncKey()" class="cute-btn flex-1 py-2.5 rounded-xl text-xs bg-gray-100 hover:bg-gray-200 font-bold"><i class="fa-solid fa-delete-left"></i></button>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeSyncModal()" class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-[#6D4C41] font-bold rounded-xl border-2 border-[#6D4C41]">
+                    取消
+                </button>
+                <button onclick="submitSyncCode()" class="flex-1 py-2.5 bg-matcha-500 hover:bg-matcha-600 text-white font-extrabold rounded-xl border-2 border-[#6D4C41] shadow-sm relative">
+                    <span id="syncBtnText">確認連線</span>
+                    <span id="syncBtnLoading" class="absolute inset-0 flex items-center justify-center hidden">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase 模組 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const TOTAL_BUDGET = 6000;
+        let remaining = TOTAL_BUDGET;
+        let historyList = [];
+        let confirmCallback = null;
+        let selectedDrinkName = ""; 
+        
+        let syncKey = "";
+        let tempSyncCode = "";
+        
+        let db = null;
+        let auth = null;
+        let unsubscribeOnSnapshot = null;
+        let isFirebaseReady = false;
+
+        // 🛡️ 本地安全儲存
+        const safeStorage = {
+            getItem(key) {
+                try { return localStorage.getItem(key); } 
+                catch (e) { return window[key] || null; }
+            },
+            setItem(key, value) {
+                try { localStorage.setItem(key, value); } 
+                catch (e) { window[key] = value; }
+            }
+        };
+
+        // 🎛️ 彈窗顯現/隱藏控制
+        function openModal(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('hidden');
+        }
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        }
+
+        function showAlert(title, text) {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertText').innerText = text;
+            openModal('alertModal');
+        }
+        function closeAlertModal() { closeModal('alertModal'); }
+
+        function showConfirm(title, text, onConfirm) {
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmText').innerText = text;
+            confirmCallback = onConfirm;
+            openModal('confirmModal');
+        }
+        function closeConfirmModal(isConfirmed) {
+            closeModal('confirmModal');
+            if (isConfirmed && confirmCallback) confirmCallback();
+            confirmCallback = null;
+        }
+
+        // 📋 智慧複製一鍵同步網址
+        function copyShareLink() {
+            if (!syncKey) return;
+            const shareUrl = window.location.origin + window.location.pathname + "?sync=" + syncKey.toUpperCase();
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(shareUrl)
+                .then(() => showAlert("📋 複製同步連結成功！", "已複製「多人連線專屬連結」至剪貼簿！\n\n傳給任何人，點開就會自動綁定同一個茶杯頻道囉！💖"))
+                .catch(() => fallbackCopyText(shareUrl));
+            } else {
+                fallbackCopyText(shareUrl);
+            }
+        }
+
+        function fallbackCopyText(text) {
+            const tempInput = document.createElement("input");
+            tempInput.value = text;
+            tempInput.style.position = "absolute";
+            tempInput.style.left = "-9999px";
+            tempInput.setAttribute("readonly", "");
+            document.body.appendChild(tempInput);
+            
+            const isiOS = navigator.userAgent.match(/ipad|iphone/i);
+            if (isiOS) {
+                const range = document.createRange();
+                range.selectNodeContents(tempInput);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                tempInput.setSelectionRange(0, 999999);
+            } else {
+                tempInput.select();
+            }
+
+            try {
+                if (document.execCommand("copy")) {
+                    showAlert("📋 複製同步連結成功！", "已複製「多人連線專屬連結」至剪貼簿！");
+                } else {
+                    throw new Error("fail");
+                }
+            } catch (err) {
+                showAlert("📋 請手動長按複製網址", `手機系統安全限制阻擋了自動複製，請「長按選取」下方整串網址複製：\n\n${text}`);
+            }
+            document.body.removeChild(tempInput);
+        }
+
+        // 🔗 網址/代碼提取
+        function extractSyncKey(input) {
+            if (!input) return null;
+            input = input.trim();
+            if (input.includes('sync=')) {
+                try {
+                    const urlParams = new URLSearchParams(input.substring(input.indexOf('?')));
+                    const key = urlParams.get('sync');
+                    if (key) return key.trim().toUpperCase();
+                } catch(e) {}
+            }
+            const cleaned = input.replace(/[^0-9a-fA-F]/g, '').toUpperCase();
+            if (cleaned.length === 6) return cleaned;
+            return null;
+        }
+
+        function generateSyncCode() {
+            const chars = '0123456789ABCDEF';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        function updateSyncStatus(status) {
+            const statusText = document.getElementById("syncStatusText");
+            const pingDot = document.getElementById("syncIndicatorPing");
+            const statusDot = document.getElementById("syncIndicatorDot");
+            
+            if (!statusText || !pingDot || !statusDot) return;
+
+            if (status === "connected") {
+                statusText.innerText = "多人雲端連線中 🟢";
+                statusText.className = "font-bold text-matcha-700";
+                pingDot.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75";
+                statusDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500";
+            } else if (status === "offline") {
+                statusText.innerText = "連線失敗，請重整 🔴";
+                statusText.className = "font-bold text-rose-500";
+                pingDot.className = "absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-0";
+                statusDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500";
+            }
+        }
+
+        // 🔥 Firestore 核心連線 (遵循三大規則)
+        async function initFirebase() {
+            try {
+                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+                    throw new Error("無 Firebase 配置");
+                }
+                
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // RULE 3: 驗證後才可操作
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                isFirebaseReady = true;
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user && syncKey) {
+                        startListening(syncKey);
+                    }
+                });
+
+            } catch (e) {
+                console.error("Firebase 初始化失敗:", e);
+                updateSyncStatus("offline");
+                showAlert("⚠️ 連線異常", "雲端資料庫初始化失敗，這可能是因為預覽環境的限制。若要完美體驗多人即時連線，請確保此頁面在有網路且配置正確的環境下運行。");
+                
+                // Fallback 本地
+                updateUI(false);
+            }
+        }
+
+        // 🟢 啟動秒級即時監聽
+        function startListening(key) {
+            if (!isFirebaseReady || !db || !auth.currentUser) return;
+            
+            if (unsubscribeOnSnapshot) unsubscribeOnSnapshot();
+
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'oolong-tea-gift';
+            // RULE 1: 嚴格路徑
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'cards', key);
+
+            updateSyncStatus("connected");
+
+            unsubscribeOnSnapshot = onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data && typeof data.remainingBudget === 'number') {
+                        remaining = data.remainingBudget;
+                        historyList = data.logs || [];
+                        updateUI(false); 
+                    }
+                } else {
+                    // 若無資料，將目前的狀態寫入初始化
+                    pushToCloud();
+                }
+            }, (error) => {
+                console.error("即時監聽錯誤:", error);
+                updateSyncStatus("offline");
+            });
+        }
+
+        // 📤 推送至 Firestore
+        async function pushToCloud() {
+            if (!isFirebaseReady || !db || !auth.currentUser || !syncKey) return;
+            
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'oolong-tea-gift';
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'cards', syncKey);
+            
+            try {
+                await setDoc(docRef, {
+                    remainingBudget: remaining,
+                    logs: historyList
+                });
+            } catch (err) {
+                console.error("資料儲存失敗:", err);
+            }
+        }
+
+        function getQueryParam(param) {
+            try { return new URLSearchParams(window.location.search).get(param); } 
+            catch(e) { return null; }
+        }
+
+        async function initApp() {
+            // 一鍵配對檢查
+            let urlSyncKey = getQueryParam('sync');
+            if (urlSyncKey) {
+                urlSyncKey = extractSyncKey(urlSyncKey);
+                if(urlSyncKey) {
+                    safeStorage.setItem('drinkSyncKey', urlSyncKey);
+                    try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
+                    showAlert("💚 頻道連接成功！", "已成功加入朋友的專屬飲料頻道！多人即時連線已啟動！🎉");
+                }
+            }
+
+            syncKey = safeStorage.getItem('drinkSyncKey');
+            if (!syncKey) {
+                syncKey = generateSyncCode();
+                safeStorage.setItem('drinkSyncKey', syncKey);
+            }
+            document.getElementById('syncKeyDisplay').innerText = "TEA-" + syncKey;
+
+            // 載入本地先墊檔
+            const savedRemaining = safeStorage.getItem('drink_remaining');
+            remaining = parseInt(savedRemaining);
+            if (isNaN(remaining)) remaining = TOTAL_BUDGET;
+            try { historyList = JSON.parse(safeStorage.getItem('drink_history')) || []; } catch(e) { historyList = []; }
+            updateUI(false);
+
+            // 啟動 Firebase
+            await initFirebase();
+        }
+
+        function updateUI(writeToCloud = true) {
+            const spent = TOTAL_BUDGET - remaining;
+            document.getElementById('remainingMoney').innerText = remaining.toLocaleString();
+            document.getElementById('spentMoney').innerText = spent.toLocaleString();
+
+            const percentage = (remaining / TOTAL_BUDGET) * 100;
+            const displayPercentage = Math.max(Math.min(95, percentage), 15);
+            document.getElementById('liquid').style.height = displayPercentage + '%';
+
+            safeStorage.setItem('drink_remaining', remaining);
+            safeStorage.setItem('drink_history', JSON.stringify(historyList));
+            safeStorage.setItem('drinkSyncKey', syncKey);
+            document.getElementById('syncKeyDisplay').innerText = "TEA-" + syncKey;
+
+            const cupMouth = document.getElementById('cupMouth');
+            if (remaining <= 0) cupMouth.className = "w-4 h-2 border-t-4 border-[#2b1e16] rounded-full mt-1"; 
+            else cupMouth.className = "w-4 h-2 border-b-4 border-[#2b1e16] rounded-full";
+
+            if (writeToCloud) pushToCloud();
+            renderHistory();
+        }
+
+        // 🍃 Preset 飲料
+        function selectDrink(name, defaultPrice, btnElement) {
+            selectedDrinkName = name;
+            document.getElementById('selectedDrinkLabel').innerText = name;
+            document.getElementById('drinkPrice').value = defaultPrice;
+
+            const buttons = document.querySelectorAll('.preset-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-matcha-200', 'border-matcha-600', 'scale-[1.03]', 'shadow-md');
+                btn.classList.add('bg-[#FBFBF2]', 'border-matcha-200');
+            });
+
+            btnElement.classList.remove('bg-[#FBFBF2]', 'border-matcha-200');
+            btnElement.classList.add('bg-matcha-200', 'border-matcha-600', 'scale-[1.03]', 'shadow-md');
+        }
+
+        function resetDrinkSelection() {
+            selectedDrinkName = "";
+            document.getElementById('selectedDrinkLabel').innerText = "尚未選擇 🥤";
+            document.getElementById('drinkPrice').value = "";
+            const buttons = document.querySelectorAll('.preset-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-matcha-200', 'border-matcha-600', 'scale-[1.03]', 'shadow-md');
+                btn.classList.add('bg-[#FBFBF2]', 'border-matcha-200');
+            });
+        }
+
+        // 🥤 扣款
+        function redeemDrink() {
+            const priceInput = document.getElementById('drinkPrice');
+            const price = parseInt(priceInput.value);
+
+            if (!selectedDrinkName) { showAlert("💡 提示", "請先點選一杯上方好喝的茶飲卡片唷！"); return; }
+            if (isNaN(price) || price <= 0) { showAlert("💡 提示", "請確認飲料金額是否填寫正確唷！"); return; }
+            if (price > remaining) { showAlert("😢 額度不足囉！", "目前剩餘金額為 $" + remaining + "。6,000 元已經花光光了！"); return; }
+
+            const btnText = document.getElementById('btnText');
+            const btnLoading = document.getElementById('btnLoading');
+            btnText.classList.add('invisible');
+            btnLoading.classList.remove('hidden');
+
+            const entireCupGroup = document.getElementById('entireCupGroup');
+            entireCupGroup.classList.add('happy-shake-active');
+
+            remaining -= price;
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            
+            historyList.unshift({ id: Date.now(), name: selectedDrinkName, price: price, date: dateStr });
+            
+            triggerConfetti();
+            resetDrinkSelection();
+            updateUI(true);
+
+            setTimeout(() => {
+                entireCupGroup.classList.remove('happy-shake-active');
+                btnText.classList.remove('invisible');
+                btnLoading.classList.add('hidden');
+            }, 600);
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('logContainer');
+            container.innerHTML = '';
+
+            if (historyList.length === 0) {
+                container.innerHTML = `<p class="text-sm text-gray-400 text-center py-4">目前還沒有兌換紀錄唷，快去買飲料！</p>`;
+                return;
+            }
+
+            historyList.forEach((item) => {
+                const logItem = document.createElement('div');
+                logItem.className = 'flex justify-between items-center bg-[#FBFBF2] p-3 rounded-xl border-2 border-peach-100 hover:border-matcha-200 transition-colors duration-150';
+                logItem.innerHTML = `
+                    <div class="text-left">
+                        <p class="font-bold text-[#6D4C41] text-sm">${item.name}</p>
+                        <p class="text-[10px] text-gray-400">${item.date}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="font-cute font-extrabold text-[#6D4C41]">-$${item.price}</span>
+                        <button onclick="deleteLog(${item.id}, ${item.price})" class="text-gray-300 hover:text-red-500 transition-colors">
+                            <i class="fa-regular fa-trash-can text-sm"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(logItem);
+            });
+        }
+
+        function deleteLog(id, price) {
+            showConfirm("💡 刪除確認", "確定要取消這筆紀錄嗎？金額會退回扣打中喔！", () => {
+                remaining = Math.min(TOTAL_BUDGET, remaining + price);
+                historyList = historyList.filter(item => item.id !== id);
+                updateUI(true);
+            });
+        }
+
+        function confirmReset() {
+            const password = prompt("⚠️ 警告：這會將所有的兌換紀錄重設！\n請輸入「reset」：");
+            if (password === "reset") {
+                remaining = TOTAL_BUDGET;
+                historyList = [];
+                resetDrinkSelection();
+                updateUI(true);
+                showAlert("✨ 系統已重置", "系統已成功重置為 6000 元！");
+            } else if (password !== null) {
+                showAlert("❌ 重置失敗", "密碼輸入錯誤。");
+            }
+        }
+
+        // 🔗 虛擬鍵盤與配對
+        function pressSyncKey(char) {
+            if (tempSyncCode.length < 6) tempSyncCode += char;
+            updateVirtualSyncDisplay();
+        }
+        function clearSyncKey() { tempSyncCode = ""; updateVirtualSyncDisplay(); }
+        function backspaceSyncKey() {
+            if (tempSyncCode.length > 0) tempSyncCode = tempSyncCode.slice(0, -1);
+            updateVirtualSyncDisplay();
+        }
+        function updateVirtualSyncDisplay() {
+            document.getElementById('syncCodeDisplay').innerText = tempSyncCode ? "TEA-" + tempSyncCode : "請輸入或貼上...";
+        }
+
+        async function pasteSyncKey() {
+            try {
+                if (navigator.clipboard) {
+                    const text = await navigator.clipboard.readText();
+                    const key = extractSyncKey(text);
+                    if (key) {
+                        tempSyncCode = key;
+                        updateVirtualSyncDisplay();
+                        showAlert("📋 貼上成功", "已成功識別金鑰！");
+                    } else {
+                        showAlert("⚠️ 無法識別", "剪貼簿內沒有正確的 6 碼代碼或網址唷！");
+                    }
+                } else { throw new Error("unsupported"); }
+            } catch (e) {
+                const input = prompt("請貼上「專屬同步網址」或代碼：");
+                const key = extractSyncKey(input);
+                if (key) { tempSyncCode = key; updateVirtualSyncDisplay(); }
+            }
+        }
+
+        function openSyncModal() {
+            tempSyncCode = "";
+            updateVirtualSyncDisplay();
+            openModal('syncModal');
+        }
+        function closeSyncModal() { closeModal('syncModal'); }
+
+        function submitSyncCode() {
+            const cleanKey = extractSyncKey(tempSyncCode);
+            if (!cleanKey || cleanKey.length !== 6) {
+                showAlert("❌ 格式不正確", "請輸入完整的 6 碼代碼，或貼上同步網址！");
+                return;
+            }
+
+            showConfirm("⚡ 確定連線？", `連線至「TEA-${cleanKey}」將覆蓋此裝置現有紀錄！確定嗎？`, () => {
+                const btnText = document.getElementById('syncBtnText');
+                const btnLoading = document.getElementById('syncBtnLoading');
+                btnText.classList.add('invisible');
+                btnLoading.classList.remove('hidden');
+
+                syncKey = cleanKey;
+                safeStorage.setItem('drinkSyncKey', syncKey);
+                
+                if (isFirebaseReady) {
+                    startListening(syncKey);
+                }
+
+                setTimeout(() => {
+                    closeSyncModal();
+                    triggerConfetti();
+                    btnText.classList.remove('invisible');
+                    btnLoading.classList.add('hidden');
+                    showAlert("🎉 連線成功！", `已成功切換至 TEA-${cleanKey} 頻道，即時同步已啟動！`);
+                }, 800);
+            });
+        }
+
+        function triggerConfetti() {
+            try {
+                confetti({ particleCount: 80, spread: 60, origin: { y: 0.8 }, colors: ['#86A789', '#FF8E9E', '#E4A564', '#FFF5E4'] });
+            } catch(e) {}
+        }
+
+        // 將函式掛載至 window 供 HTML 事件調用
+        window.copyShareLink = copyShareLink;
+        window.openSyncModal = openSyncModal;
+        window.closeSyncModal = closeSyncModal;
+        window.pressSyncKey = pressSyncKey;
+        window.clearSyncKey = clearSyncKey;
+        window.backspaceSyncKey = backspaceSyncKey;
+        window.pasteSyncKey = pasteSyncKey;
+        window.submitSyncCode = submitSyncCode;
+        window.selectDrink = selectDrink;
+        window.redeemDrink = redeemDrink;
+        window.deleteLog = deleteLog;
+        window.confirmReset = confirmReset;
+        window.closeAlertModal = closeAlertModal;
+        window.closeConfirmModal = closeConfirmModal;
+
+        window.onload = function() {
+            initApp();
+        }
+    </script>
+</body>
+</html>
