@@ -191,7 +191,7 @@
             </h3>
             
             <div class="space-y-4">
-                <!-- 可愛點選 Preset 茶飲標籤 (已完美移除價格標籤) -->
+                <!-- 可愛點選 Preset 茶飲標籤 (無價格版) -->
                 <div>
                     <label class="block text-xs text-[#8D6E63] font-bold mb-2">🍃 快速點選好喝的茶飲</label>
                     <div class="grid grid-cols-2 gap-2" id="drinkPresetGrid">
@@ -199,21 +199,21 @@
                             <span class="text-xl">🍃</span>
                             <span>清爽綠茶</span>
                         </button>
-                        <button type="button" onclick="selectDrink('金萱青茶 🍵', 30, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
+                        <button type="button" onclick="selectDrink('金萱青茶 🍵', 35, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
                             <span class="text-xl">🍵</span>
                             <span>金萱青茶</span>
                         </button>
-                        <button type="button" onclick="selectDrink('波霸奶茶 🔮', 65, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
+                        <button type="button" onclick="selectDrink('波霸奶茶 🔮', 55, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
                             <span class="text-xl">🔮</span>
                             <span>波霸奶茶</span>
                         </button>
-                        <button type="button" onclick="selectDrink('烏龍茶 🍵', 35, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
+                        <button type="button" onclick="selectDrink('烏龍茶 🍵', 40, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
                             <span class="text-xl">🍵</span>
                             <span>烏龍茶</span>
                         </button>
-                        <button type="button" onclick="selectDrink('仙草甘茶 🌸', 35, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
+                        <button type="button" onclick="selectDrink('四季春茶 🌸', 35, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
                             <span class="text-xl">🌸</span>
-                            <span>仙草甘茶</span>
+                            <span>四季春茶</span>
                         </button>
                         <button type="button" onclick="selectDrink('奢華特調 ✨', 80, this)" class="preset-btn px-3 py-3.5 rounded-2xl border-2 border-matcha-200 bg-[#FBFBF2] text-[#6D4C41] font-extrabold text-sm hover:border-matcha-500 transition-all flex flex-col items-center gap-1 shadow-sm">
                             <span class="text-xl">✨</span>
@@ -236,8 +236,8 @@
                     </div>
                 </div>
                 
-                <button onclick="redeemDrink()" class="cute-btn w-full py-3.5 bg-matcha-500 hover:bg-matcha-600 text-white font-extrabold text-lg rounded-2xl transition duration-150">
-                    ✨ 注入燃料！(確認兌換) ✨
+                <button onclick="redeemDrink()" class="cute-btn w-full py-3.5 bg-matcha-500 hover:bg-matcha-600 text-white font-extrabold text-lg rounded-2xl transition duration-150 relative">
+                    <span id="btnText">✨ 注入燃料！(確認兌換) ✨</span>
                 </button>
             </div>
         </div>
@@ -259,7 +259,7 @@
             </div>
         </div>
 
-        <!-- 使用規則與條款 (已移除每杯折抵說明) -->
+        <!-- 使用規則與條款 -->
         <div class="cute-card bg-white rounded-3xl p-6 space-y-3">
             <h3 class="text-md font-bold text-[#6D4C41] flex items-center gap-2">
                 <i class="fa-solid fa-circle-info text-amber-500"></i>
@@ -289,8 +289,8 @@
             </ul>
         </div>
 
-        <!-- 系統重置按鈕 -->
-        <div class="text-center">
+        <!-- 系統重置按鈕 (含隱藏沒收彩蛋) -->
+        <div class="text-center mt-4">
             <button onclick="confirmReset()" class="text-[10px] text-gray-400 hover:text-red-400 transition-colors">
                 ⚠️ 重置系統數據 (請勿隨意點擊)
             </button>
@@ -330,7 +330,7 @@
         let remaining = TOTAL_BUDGET;
         let historyList = [];
         let confirmCallback = null;
-        let selectedDrinkName = ""; // 新增當前選取的飲料變數
+        let selectedDrinkName = ""; 
 
         // 🛡️ 本地安全儲存
         const safeStorage = {
@@ -354,17 +354,13 @@
             if (el) el.classList.add('hidden');
         }
 
-        // 🌸 可愛彈窗 Alert 控制
         function showAlert(title, text) {
             document.getElementById('alertTitle').innerText = title;
             document.getElementById('alertText').innerText = text;
             openModal('alertModal');
         }
-        function closeAlertModal() {
-            closeModal('alertModal');
-        }
+        function closeAlertModal() { closeModal('alertModal'); }
 
-        // 🌸 可愛彈窗 Confirm 控制
         function showConfirm(title, text, onConfirm) {
             document.getElementById('confirmTitle').innerText = title;
             document.getElementById('confirmText').innerText = text;
@@ -373,25 +369,17 @@
         }
         function closeConfirmModal(isConfirmed) {
             closeModal('confirmModal');
-            if (isConfirmed && confirmCallback) {
-                confirmCallback();
-            }
+            if (isConfirmed && confirmCallback) confirmCallback();
             confirmCallback = null;
         }
 
-        function initLocalData() {
-            // 載入本地紀錄
+        // 🚀 初始化全系統 (單機版)
+        function initApp() {
+            // 載入本地快取
             const savedRemaining = safeStorage.getItem('drink_remaining');
             remaining = parseInt(savedRemaining);
-            if (isNaN(remaining) || remaining === null) {
-                remaining = TOTAL_BUDGET;
-            }
-            try {
-                const savedHistory = safeStorage.getItem('drink_history');
-                historyList = savedHistory ? JSON.parse(savedHistory) : [];
-            } catch (e) {
-                historyList = [];
-            }
+            if (isNaN(remaining)) remaining = TOTAL_BUDGET;
+            try { historyList = JSON.parse(safeStorage.getItem('drink_history')) || []; } catch(e) { historyList = []; }
             updateUI();
         }
 
@@ -400,45 +388,36 @@
             document.getElementById('remainingMoney').innerText = remaining.toLocaleString();
             document.getElementById('spentMoney').innerText = spent.toLocaleString();
 
-            // 更新珍奶杯水位
             const percentage = (remaining / TOTAL_BUDGET) * 100;
             const displayPercentage = Math.max(Math.min(95, percentage), 15);
             document.getElementById('liquid').style.height = displayPercentage + '%';
 
-            // 儲存本地
             safeStorage.setItem('drink_remaining', remaining);
             safeStorage.setItem('drink_history', JSON.stringify(historyList));
 
-            // 表情變更
             const cupMouth = document.getElementById('cupMouth');
-            if (remaining <= 0) {
-                cupMouth.className = "w-4 h-2 border-t-4 border-[#2b1e16] rounded-full mt-1"; // 哭臉
-            } else {
-                cupMouth.className = "w-4 h-2 border-b-4 border-[#2b1e16] rounded-full"; // 微笑
-            }
+            if (remaining <= 0) cupMouth.className = "w-4 h-2 border-t-4 border-[#2b1e16] rounded-full mt-1"; 
+            else cupMouth.className = "w-4 h-2 border-b-4 border-[#2b1e16] rounded-full";
 
             renderHistory();
         }
 
-        // 🍃 新增點選 Preset 飲料函式
+        // 🍃 Preset 飲料點選
         function selectDrink(name, defaultPrice, btnElement) {
             selectedDrinkName = name;
             document.getElementById('selectedDrinkLabel').innerText = name;
             document.getElementById('drinkPrice').value = defaultPrice;
 
-            // 清除其他 Preset 卡片的選取樣式
             const buttons = document.querySelectorAll('.preset-btn');
             buttons.forEach(btn => {
                 btn.classList.remove('bg-matcha-200', 'border-matcha-600', 'scale-[1.03]', 'shadow-md');
                 btn.classList.add('bg-[#FBFBF2]', 'border-matcha-200');
             });
 
-            // 為當前點選的卡片加上選取狀態
             btnElement.classList.remove('bg-[#FBFBF2]', 'border-matcha-200');
             btnElement.classList.add('bg-matcha-200', 'border-matcha-600', 'scale-[1.03]', 'shadow-md');
         }
 
-        // 重置點選狀態
         function resetDrinkSelection() {
             selectedDrinkName = "";
             document.getElementById('selectedDrinkLabel').innerText = "尚未選擇 🥤";
@@ -450,50 +429,52 @@
             });
         }
 
+        // 🥤 扣款
         function redeemDrink() {
             const priceInput = document.getElementById('drinkPrice');
             const price = parseInt(priceInput.value);
 
-            // 防呆驗證
-            if (!selectedDrinkName) {
-                showAlert("💡 提示", "請先點選一杯上方好喝的茶飲卡片唷！");
-                return;
-            }
-            if (isNaN(price) || price <= 0) {
-                showAlert("💡 提示", "請確認飲料金額是否填寫正確唷！");
-                return;
-            }
-            if (price > remaining) {
-                showAlert("😢 額度不足囉！", "目前剩餘金額為 $" + remaining + "。6,000 元已經花光光了，快去找女友撒嬌看能不能爭取特別加碼福利！");
-                return;
+            if (!selectedDrinkName) { showAlert("💡 提示", "請先點選一杯上方好喝的茶飲卡片唷！"); return; }
+            if (isNaN(price) || price <= 0) { showAlert("💡 提示", "請確認飲料金額是否填寫正確唷！"); return; }
+            if (price > remaining) { showAlert("😢 額度不足囉！", "目前剩餘金額為 $" + remaining + "。6,000 元已經花光光了！"); return; }
+
+            // 🛑 每日 2 杯上限與「撒嬌授權防護」機制
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
+            
+            // 計算今天已經喝了幾杯 (排除被沒收的紀錄)
+            const todaysDrinksCount = historyList.filter(item => 
+                item.date && 
+                item.date.startsWith(todayStr) && 
+                !item.name.includes("系統強制終止")
+            ).length;
+
+            // 如果已經喝了 2 杯(含)以上，啟動防護牆
+            if (todaysDrinksCount >= 2) {
+                const pwd = prompt(`🛑 【每日上限攔截】\n今天已經喝了 ${todaysDrinksCount} 杯囉！\n\n為了你的腸胃健康，若想破例加點，請立刻對女友執行「撒嬌 / 抱抱 / 親一口」！\n\n請交由女友本人輸入專屬解鎖密碼：`);
+                
+                // 女友專屬密碼設定為：love
+                if (pwd === "love" || pwd === "LOVE" || pwd === "Love") {
+                    showAlert("🔓 解鎖成功！", "撒嬌認證通過！女友已特別核准你再喝一杯！請慢慢享用！");
+                } else if (pwd !== null) {
+                    showAlert("❌ 授權失敗", "密碼錯誤！撒嬌誠意不足，女友拒絕放行！請再接再厲！");
+                    return; // 中斷扣款
+                } else {
+                    return; // 按下取消，中斷扣款
+                }
             }
 
-            // 🎬 啟動杯子快樂晃動
             const entireCupGroup = document.getElementById('entireCupGroup');
             entireCupGroup.classList.add('happy-shake-active');
 
-            // 扣款與紀錄
             remaining -= price;
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            const dateStr = `${todayStr} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             
-            const item = {
-                id: Date.now(),
-                name: selectedDrinkName,
-                price: price,
-                date: dateStr
-            };
-
-            historyList.unshift(item); // 加到最前面
-
-            // 爆紙花
+            historyList.unshift({ id: Date.now(), name: selectedDrinkName, price: price, date: dateStr });
+            
             triggerConfetti();
-
-            // 重置點選輸入狀態
             resetDrinkSelection();
-
-            // 更新 UI
-            updateUI();
+            updateUI(); 
 
             setTimeout(() => {
                 entireCupGroup.classList.remove('happy-shake-active');
@@ -528,57 +509,65 @@
             });
         }
 
-        // 刪除日誌
         function deleteLog(id, price) {
-            showConfirm("💡 刪除確認", "確定要取消這筆手搖兌換紀錄嗎？金額會退回扣打中喔！", () => {
+            showConfirm("💡 刪除確認", "確定要取消這筆紀錄嗎？金額會退回扣打中喔！", () => {
                 remaining = Math.min(TOTAL_BUDGET, remaining + price);
                 historyList = historyList.filter(item => item.id !== id);
                 updateUI();
-                showAlert("🧹 還原成功", `已刪除該筆消費，金額 $${price} 元已成功退回卡片中！`);
             });
         }
 
-        // 系統重置確認
+        // ⚠️ 一鍵重置 / 沒收 隱藏彩蛋
         function confirmReset() {
-            const password = prompt("⚠️ 警告：這會將所有的兌換紀錄與 6000 元扣打重設！\n如果要重置，請輸入「reset」：");
+            const password = prompt("⚠️ 女友專屬後台指令：\n👉 輸入「reset」：重置回 6000 元\n👉 輸入「沒收」：啟動系統終止程序！");
             if (password === "reset") {
                 remaining = TOTAL_BUDGET;
                 historyList = [];
                 resetDrinkSelection();
                 updateUI();
-                showAlert("✨ 系統已重置", "系統已成功重置！又是滿滿的 6000 元扣打囉！");
+                showAlert("✨ 系統已重置", "系統已成功重置為 6000 元！");
+            } else if (password === "沒收") {
+                const currentRemaining = remaining;
+                remaining = 0;
+                
+                const now = new Date();
+                const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                
+                historyList.unshift({ 
+                    id: Date.now(), 
+                    name: "🚨 違規懲罰：系統強制終止", 
+                    price: currentRemaining, 
+                    date: dateStr 
+                });
+                
+                resetDrinkSelection();
+                updateUI();
+                showAlert("🚨 終止程序已啟動！", "嗶嗶嗶！偵測到違規行為，女友已無情啟動「系統終止程序」！剩餘扣打已全數沒收！男友請立刻抱緊處理！");
             } else if (password !== null) {
-                showAlert("❌ 重置失敗", "密碼輸入錯誤，重置失敗！女友生氣囉 (・ε・)");
+                showAlert("❌ 指令無效", "密碼輸入錯誤，系統無反應。");
             }
         }
 
         function triggerConfetti() {
-            const count = 200;
-            const defaults = { origin: { y: 0.7 } };
-            function fire(particleRatio, opts) {
-                confetti({ ...defaults, ...opts, particleCount: Math.floor(count * particleRatio) });
-            }
-            fire(0.25, { spread: 26, startVelocity: 55, colors: ['#A5D6A7', '#C8E6C9', '#FFCDCD', '#FFF'] });
-            fire(0.2, { spread: 60, colors: ['#A5D6A7', '#C8E6C9', '#FFCDCD', '#FFF'] });
-            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8, colors: ['#FFA4A4', '#FFCDCD', '#A5D6A7'] });
-            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2, colors: ['#6D4C41', '#FFA4A4'] });
-            fire(0.1, { spread: 120, startVelocity: 45, colors: ['#A5D6A7', '#FFA4A4'] });
+            try {
+                confetti({ particleCount: 80, spread: 60, origin: { y: 0.8 }, colors: ['#86A789', '#FF8E9E', '#E4A564', '#FFF5E4'] });
+            } catch(e) {}
         }
 
-        function triggerConfettiHearts() {
-            const duration = 1.5 * 1000; const end = Date.now() + duration;
-            (function frame() {
-                try {
-                    confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#FF8E9E', '#FFD1D1'] });
-                    confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#FF8E9E', '#FFD1D1'] });
-                } catch(e) {}
-                if (Date.now() < end) requestAnimationFrame(frame);
-            }());
-        }
+        // 將所有函式掛載至 window 供 HTML 事件調用
+        window.selectDrink = selectDrink;
+        window.redeemDrink = redeemDrink;
+        window.deleteLog = deleteLog;
+        window.confirmReset = confirmReset;
+        window.closeAlertModal = closeAlertModal;
+        window.closeConfirmModal = closeConfirmModal;
 
+        // 網頁載入時啟動
         window.onload = function() {
-            initLocalData();
+            initApp();
         }
     </script>
 </body>
 </html>
+```
+eof
